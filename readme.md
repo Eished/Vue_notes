@@ -201,9 +201,196 @@ Vue2.5从零基础入门到实战项目开发去哪儿网App
 
 ## 2-5 前端组件化
 
+- 每个组件就是页面的一个区域
+
 ## 2-6 使用组件改造TodoList
+
+```HTML
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>TodoList</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <input type="text" v-model="inputValue">
+    <button v-on:click="handleBtnClick">提交</button>
+    <ul>
+      <!-- <li v-for="item in list">{{item}}</li> -->
+      <todo-item v-bind:content="item" v-for="item in list">
+      </todo-item>
+    </ul>
+  </div>
+  <script>
+    // // 全局组件
+    // Vue.component("TodoItem", {
+    //   props: ['content'], // 接收 v-bind:content 传递的值
+    //   template: "<li>{{content}}</li>" // 模板内使用字符串
+    // })
+
+    var TodoItem = {
+      props: ['content'],
+      template: "<li>{{content}}</li>"
+    }
+
+    var app = new Vue({
+      el: '#app',
+      components: {
+        TodoItem: TodoItem // 注册局部组件
+      },
+      data: {
+        list: ['第一课的内容', '第二课的内容'],
+        inputValue: ''
+      },
+      methods: {
+        handleBtnClick() {
+          this.$data.list.unshift(this.inputValue)
+          this.inputValue = ''
+        }
+      },
+    })
+  </script>
+
+</body>
+
+</html>
+```
+
+
+
 ## 2-7 简单的组件间传值
+
+```HTMl
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>TodoList</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <input type="text" v-model="inputValue">
+    <button v-on:click="handleBtnClick">提交</button>
+    <ul>
+      <!-- <li v-for="item in list">{{item}}</li> -->
+
+      <!-- v-bind: 可以简写为: -->
+      <!-- v-on: 可以简写为@ -->
+      <!-- @delete="handleItemDelete" 监听 $emit 传递的 delete 事件 -->
+      <todo-item :content="item" :index="index" v-for="(item,index) in list" @delete="handleItemDelete">
+      </todo-item>
+    </ul>
+  </div>
+  <script>
+    // // 全局组件
+    // Vue.component("TodoItem", {
+    //   props: ['content'], // 接收 v-bind:content 传递的值
+    //   template: "<li>{{content}}</li>" // 模板内使用字符串
+    // })
+
+    var TodoItem = {
+      // 父组件向子组件传值, v-bind: 发送和 props 接收
+      props: ['content', 'index'],
+      template: "<li @click='handleItemClick'>{{content}}</li>",
+      methods: {
+        handleItemClick: function () {
+          // $emit 向外触发事件; 父组件监听此事件传值
+          this.$emit("delete", this.index);
+        }
+      }
+    }
+
+    var app = new Vue({
+      el: '#app',
+      components: {
+        TodoItem: TodoItem // 注册局部组件
+      },
+      data: {
+        list: ['第一课的内容', '第二课的内容'],
+        inputValue: ''
+      },
+      methods: {
+        handleBtnClick: function () {
+          this.$data.list.unshift(this.inputValue)
+          this.inputValue = ''
+        },
+        handleItemDelete: function (index) {
+          this.list.splice(index, 1)
+        }
+      },
+    })
+  </script>
+
+</body>
+
+</html>
+```
+
+
+
 ## 2-8 章节小结
+
+作业: 仔细阅读Vue介绍部分文档, 查漏补缺
+
+1. `v-bind` attribute 被称为**指令**
+
+2. `app3.seen = false` : 显示或隐藏元素
+
+3.  `v-for` 指令可以绑定数组的数据来渲染一个项目列表
+
+   - `v-for="todo in todos"`
+
+4.  `v-on` 指令添加一个事件监听器，通过它调用在 Vue 实例中定义的方法
+
+   - `v-on:click="reverseMessage"`
+
+5. `v-model` 指令，它能轻松实现表单输入和应用状态之间的双向绑定
+
+   - ```html
+     <div id="app-6">
+       <p>{{ message }}</p>
+       <input v-model="message">
+     </div>
+     <script>
+     var app6 = new Vue({
+       el: '#app-6',
+       data: {
+         message: 'Hello Vue!'
+       }
+     })
+     </script>
+     ```
+
+6. 组件系统允许我们使用小型、独立和通常可复用的组件构建大型应用。几乎任意类型的应用界面都可以抽象为一个组件树：
+
+   - 一个组件本质上是一个拥有预定义选项的一个 Vue 实例。
+
+   - ```js
+     // 定义名为 todo-item 的新组件
+     Vue.component('todo-item', {
+       template: '<li>这是个待办项</li>'
+     })
+     ```
+
+     
+
+   ![Component Tree](readme.assets/components.png)
+
+7. 子单元通过 prop 接口与父单元进行了良好的解耦。
+
+
+
 # 第3章 Vue 基础精讲
 	本章通过精挑细选的案例，精讲 Vue 中的基础知识，
 	包括实例、生命周期、指令、计算属性、方法、侦听器，表单等部分内容。
