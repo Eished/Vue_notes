@@ -395,14 +395,415 @@ Vue2.5从零基础入门到实战项目开发去哪儿网App
 	本章通过精挑细选的案例，精讲 Vue 中的基础知识，
 	包括实例、生命周期、指令、计算属性、方法、侦听器，表单等部分内容。
 ## 3-1 Vue实例
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Vue实例</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="root">
+    <!-- v-bind: 可以简写为: -->
+    <!-- v-on: 可以简写为@ -->
+    <!-- 插值表达式 -->
+    <div @click="handleClick">{{message}}</div>
+    <!-- 子组件 -->
+    <item></item>
+  </div>
+
+  <script>
+    // Vue 组件, 底层会转换为 Vue 实例
+    Vue.component('item', {
+      template: '<div>hello item</div>'
+    })
+
+
+    // 根实例, 入口
+    var vm = new Vue({
+      // el 指Vue接管的元素element
+      el: '#root',
+      // data 指元素所需的数据
+      data: {
+        message: 'hello world'
+      },
+      // methods 指元素所需的方法
+      methods: {
+        handleClick() {
+          alert('hello')
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
+```
+
+
+
 ## 3-2 Vue实例生命周期
+
+1. 当这些数据改变时，视图会进行重渲染。值得注意的是只有当实例被创建时就已经存在于 `data` 中的属性才是**响应式**的
+
+2. 使用 `Object.freeze()`，这会阻止修改现有的属性，也意味着响应系统无法再*追踪*变化。
+
+3. Vue 实例还暴露了一些有用的实例属性与方法。它们都有前缀 `$`，以便与用户定义的属性区分开来。
+
+4. 每个 Vue 实例在被创建时都要经过一系列的初始化过程——例如，需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等。同时在这个过程中也会运行一些叫做**生命周期钩子**的函数，这给了用户在不同阶段添加自己的代码的机会。
+
+   > 不要在选项属性或回调上使用[箭头函数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Arrow_functions)，比如 `created: () => console.log(this.a)` 或 `vm.$watch('a', newValue => this.myMethod())`。因为箭头函数并没有 `this`，`this` 会作为变量一直向上级词法作用域查找，直至找到为止，经常导致 `Uncaught TypeError: Cannot read property of undefined` 或 `Uncaught TypeError: this.myMethod is not a function` 之类的错误。
+
+![Vue 实例生命周期](readme.assets/lifecycle.png)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Vue生命周期钩子</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="root">{{content}}</div>
+
+  <script>
+    var vm = new Vue({
+      el: '#root',
+      beforeCreate: function () {
+        console.log('beforeCreate');
+      },
+      created: function () {
+        console.log('created');
+      },
+      beforeMount: function () {
+        console.log('beforeMount', this.$el);
+      },
+      mounted: function () {
+        console.log('mounted', this.$el);
+      },
+      beforeDestroy: function () {
+        console.log('beforeDestroy');
+      },
+      destroyed: function () {
+        console.log('destroyed');
+      },
+      beforeUpdate: function () {
+        console.log('beforeUpdate');
+      },
+      updated: function () {
+        console.log('updated');
+      },
+      data: {
+        content: 'hello'
+      },
+      template: '<div>world</div>'
+    })
+  </script>
+</body>
+
+</html>
+```
+
+
+
 ## 3-3 Vue的模版语法
+
+1. 插值表达式 : `{{content}}`
+2. `v-text="content"` : 等同于插值表达式, 等号后面是 JS表达式
+3. `v-html="content"` : 不转义
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Vue模板语法</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <div>{{content}}</div>
+    <div v-text="content + 'Lee'"></div>
+    <div v-html="content.split('l')[0]"></div>
+  </div>
+
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        content: '<h1>hello</h1>'
+      }
+    })
+  </script>
+</body>
+
+</html>
+```
+
+
+
 ## 3-4 计算属性,方法与侦听器
+
+```js
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>3.4.计算属性方法侦听器</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <div>{{fullName}}</div>
+  </div>
+
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        firstName: "Dell",
+        lastName: "Lee",
+        fullName: "Dell Lee",
+        age: 28
+      },
+      // 侦听器 内置缓存,类似于 computed ,它不依赖的值发生改变不会重新计算,但语法复杂,推荐使用 computed
+      watch: {
+        firstName: function () {
+          console.log("firstName计算了一次");
+          this.fullName = this.firstName + " " + this.lastName
+        },
+        lastName: function () {
+          console.log("lastName计算了一次");
+          this.fullName = this.firstName + " " + this.lastName
+        }
+      }
+      // 计算属性  它内置缓存,它不依赖的值发生改变不会重新计算
+      // computed: {
+      //   fullName: function () {
+      //     console.log("计算了一次");
+      //     return this.firstName + " " + this.lastName
+      //   }
+      // }
+      // 无缓存,效率低于computed 和 watch
+      // methods: {
+      //   fullName() {
+      //     console.log("计算了一次");
+      //     return this.firstName + " " + this.lastName
+      //   }
+      // }
+    })
+  </script>
+</body>
+
+</html>
+```
+
+
+
 ## 3-5 计算属性的 getter 和 setter
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>3.5.getter和setter</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <div>{{fullName}}</div>
+  </div>
+
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        firstName: "Dell",
+        lastName: "Lee"
+      },
+      computed: {
+        fullName: {
+          get: function () {
+            return this.firstName + " " + this.lastName
+          },
+          set: function (value) {
+            var arr = value.split(" ");
+            this.firstName = arr[0]
+            this.lastName = arr[1]
+          }
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
+```
+
+
+
 ## 3-6 Vue中的样式绑定
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>3.5.getter和setter</title>
+  <script src="./vue.js"></script>
+  <style>
+    .activated {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- class 的对象绑定 -->
+    <div @click="handleDivClick" :class="{activated: isActivated}">Hello World</div>
+
+    <!-- class 显示数组内变量的值,可以动态添加类 -->
+    <div @click="handleDivClick" :class="[activated, one]">Hello World</div>
+
+    <!-- style 方式改变样式 -->
+    <div :style="styleObj" @click="handleDivClick">Hello World</div>
+
+    <!-- style 样式由数组里的对象决定,可以添加多个对象 -->
+    <div :style="[styleObj,{fontSize:'20px'}]" @click="handleDivClick">Hello World</div>
+  </div>
+
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        isActivated: false,
+        activated: "",
+        one: "ac-one",
+        styleObj: {
+          color: ""
+        }
+      },
+      methods: {
+        handleDivClick: function () {
+          // 1
+          this.isActivated = !this.isActivated
+          // 2
+          if (this.activated === "") {
+            this.activated = "activated"
+          } else {
+            this.activated = ""
+          }
+          // 3
+          if (this.styleObj.color === "") {
+            this.styleObj.color = "red"
+          } else {
+            this.styleObj.color = ""
+          }
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
+```
+
+
+
 ## 3-7 Vue中的条件渲染
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>3.5.getter和setter</title>
+  <script src="./vue.js"></script>
+  <style>
+    .activated {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- v-if 判断是否渲染 -->
+    <div v-if="show ==='false'">This is false</div>
+    <div v-else-if="show==='true'">This is true</div>
+    <!-- v-if v-else v-else-if 必须紧贴在一起使用 -->
+    <div v-else>Bye</div>
+    <!-- v-show 渲染后设置样式,性能较高 -->
+    <div v-show="show">{{message + 'v-show'}}</div>
+
+    <!-- key 值指唯一的元素,渲染时就不会复用input输入的内容 -->
+    <div v-if="show ==='false'">
+      用户名: <input type="text" key="username">
+    </div>
+    <div v-if="show==='true'">
+      邮箱: <input type="text" key="mail">
+    </div>
+  </div>
+
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        show: 'false',
+        message: "Hello World"
+      }
+    })
+  </script>
+</body>
+
+</html>
+```
+
+
+
 ## 3-8 Vue中的列表渲染
+
+```
+
+```
+
+
+
 ## 3-9 Vue中的set方法
+
+
+
 # 第4章 深入理解 Vue 组件
 	本章将深入讲解 Vue 组件使用的细节点，从父子组件的参数传递及校验入手，
 	逐步深入到非父子组件间传值、插槽、作用域插槽、动态组件等内容的讲解。
