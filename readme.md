@@ -794,13 +794,106 @@ Vue2.5从零基础入门到实战项目开发去哪儿网App
 
 ## 3-8 Vue中的列表渲染
 
-```
+```html
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>3.5.getter和setter</title>
+  <script src="./vue.js"></script>
+  <style>
+    .activated {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- template 占位符,相当于div 但不会出现在dom元素中 -->
+    <template v-for="(item,index) of list" :key="item.id">
+      <li>{{item.text+":"+item.id}}</li>
+      <em>{{item.text}}</em>
+    </template>
+    <div v-for="(item,key,index) of userInfo">{{index}}--{{key}}--{{item}}</div>
+  </div>
+
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        // 只能使用 vue提供的数组函数才能监听变化
+        // push pop shift unshift splice sort reverse
+        // 直接通过下标更改数组页面不会响应
+        // 改变list 数组的引用也可以
+        list: [{
+          id: "12",
+          text: "hello "
+        }, {
+          id: "13",
+          text: "hello2 "
+        }, {
+          id: "14",
+          text: "hello3 "
+        }],
+        // 对象的循环
+        // 改变userInfo 对象的引用也可以
+        userInfo: {
+          name: "Dell",
+          age: 28,
+          gender: "male",
+          salary: "secret"
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
 ```
 
 
 
 ## 3-9 Vue中的set方法
+
+- `Vue.set(array,index,value)` 或 `$set(array,index,value)` 方法直接动态改变数组的每一项
+-  `set(obj,key,value)` 或 `$set(obj,key,value)` 方法可以直接动态改变对象数据
+
+```js
+var vm = new Vue({
+      el: '#app',
+      data: {
+        // 只能使用 vue提供的数组函数才能监听变化
+        // push pop shift unshift splice sort reverse
+        // 直接通过下标更改数组页面不会响应
+        // 改变list 数组的引用也可以
+        // Vue.set(array,index,value) 或 $set(array,index,value) 方法改变数组的每一项
+        list: [{
+          id: "12",
+          text: "hello "
+        }, {
+          id: "13",
+          text: "hello2 "
+        }, {
+          id: "14",
+          text: "hello3 "
+        }],
+        // 对象的循环
+        // 改变userInfo 对象的引用也可以
+        // 通过Vue 支持的 set(obj,key,value) 方法可以动态改变数据
+        // 通过Vue 自带的 $set 实现同样的效果
+        userInfo: {
+          name: "Dell",
+          age: 28,
+          gender: "male",
+          salary: "secret"
+        }
+      }
+    })
+```
 
 
 
