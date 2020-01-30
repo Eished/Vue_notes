@@ -524,6 +524,7 @@ Vue2.5从零基础入门到实战项目开发去哪儿网App
 1. 插值表达式 : `{{content}}`
 2. `v-text="content"` : 等同于插值表达式, 等号后面是 JS表达式
 3. `v-html="content"` : 不转义
+4. Mustache 语法不能作用在 HTML attribute 上，遇到这种情况应该使用 [`v-bind` 指令](https://cn.vuejs.org/v2/api/#v-bind)：
 
 ```html
 <!DOCTYPE html>
@@ -561,7 +562,7 @@ Vue2.5从零基础入门到实战项目开发去哪儿网App
 
 ## 3-4 计算属性,方法与侦听器
 
-```js
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -742,6 +743,8 @@ Vue2.5从零基础入门到实战项目开发去哪儿网App
 
 ## 3-7 Vue中的条件渲染
 
+- 添加 `key` 属性, 防止标签内容复用
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -795,6 +798,18 @@ Vue2.5从零基础入门到实战项目开发去哪儿网App
 
 
 ## 3-8 Vue中的列表渲染
+
+- 建议尽可能在使用 `v-for` 时提供 `key` attribute , 请用字符串或数值类型的值。
+- 变异方法
+  - `push()`
+  - `pop()`
+  - `shift()`
+  - `unshift()`
+  - `splice()`
+  - `sort()`
+  - `reverse()`
+- 也有非变异 (non-mutating method) 方法，
+  - 例如 `filter()`、`concat()` 和 `slice()`
 
 ```html
 <!DOCTYPE html>
@@ -863,6 +878,7 @@ Vue2.5从零基础入门到实战项目开发去哪儿网App
 
 - `Vue.set(array,index,value)` 或 `$set(array,index,value)` 方法直接动态改变数组的每一项
 -  `set(obj,key,value)` 或 `$set(obj,key,value)` 方法可以直接动态改变对象数据
+- **Vue 不能检测对象属性的添加或删除**：
 
 ```js
 var vm = new Vue({
@@ -1093,15 +1109,56 @@ var vm = new Vue({
 - 在HTML元素标签中, `@click=""` 绑定原生事件
 - 在子组件中, `@click=""` 绑定自定义事件
   - 使用 `$emit('click')` 触发自定义事件
-- 在子组件中, `@click.native=""` 绑定原生事件
+- 在子组件中, `@click.native=""` 绑定原生事件, 使用修饰符
 
 ## 4-5 非父子组件间的传值
 
 1. Vuex
+
 2. 总线机制/Bus/发布订阅模式/观察者模式
+
    1. `Vue.prototype.bus = new Vue()` : 创建 bus 总线
    2. ` this.bus.$emit('change', this.selfContent)` : 触发事件到 bus 总线
    3. `this.bus.$on('change', function (msg){}` : 监听 bus 总线的事件
+
+3. #### `.sync` 修饰符
+
+   > 2.3.0+ 新增
+
+   在有些情况下，我们可能需要对一个 prop 进行“双向绑定”。不幸的是，真正的双向绑定会带来维护上的问题，因为子组件可以修改父组件，且在父组件和子组件都没有明显的改动来源。
+
+   这也是为什么我们推荐以 `update:myPropName` 的模式触发事件取而代之。举个例子，在一个包含 `title` prop 的假设的组件中，我们可以用以下方法表达对其赋新值的意图：
+
+   ```js
+   this.$emit('update:title', newTitle)
+   ```
+
+   然后父组件可以监听那个事件并根据需要更新一个本地的数据属性。例如：
+
+   ```html
+   <text-document
+     v-bind:title="doc.title"
+     v-on:update:title="doc.title = $event"
+   ></text-document>
+   ```
+
+   为了方便起见，我们为这种模式提供一个缩写，即 `.sync` 修饰符：
+
+   ```html
+   <text-document v-bind:title.sync="doc.title"></text-document>
+   ```
+
+   > 注意带有 `.sync` 修饰符的 `v-bind` **不能**和表达式一起使用 (例如 `v-bind:title.sync=”doc.title + ‘!’”` 是无效的)。取而代之的是，你只能提供你想要绑定的属性名，类似 `v-model`。
+
+   当我们用一个对象同时设置多个 prop 的时候，也可以将这个 `.sync` 修饰符和 `v-bind` 配合使用：
+
+   ```html
+   <text-document v-bind.sync="doc"></text-document>
+   ```
+
+   这样会把 `doc` 对象中的每一个属性 (如 `title`) 都作为一个独立的 prop 传进去，然后各自添加用于更新的 `v-on` 监听器。
+
+   > 将 `v-bind.sync` 用在一个字面量的对象上，例如 `v-bind.sync=”{ title: doc.title }”`，是无法正常工作的，因为在解析一个像这样的复杂表达式的时候，有很多边缘情况需要考虑。
 
 ```html
 <body>
@@ -1147,27 +1204,59 @@ var vm = new Vue({
 
 ## 4-6 在Vue中使用插槽
 
+- 对于这样的情况，`<slot>` 元素有一个特殊的 attribute：`name`。这个 attribute 可以用来定义额外的插槽：
+
+- 一个不带 `name` 的 `<slot>` 出口会带有隐含的名字“default”。
+
+- 在向具名插槽提供内容的时候，我们可以在一个 `<template>` 元素上使用 `v-slot` 指令，并以 `v-slot` 的参数的形式提供其名称：
+
+- 注意 **`v-slot` 只能添加在 **`<template>` **上** (只有[一种例外情况](https://cn.vuejs.org/v2/guide/components-slots.html#独占默认插槽的缩写语法))，这一点和已经废弃的 [`slot` attribute](https://cn.vuejs.org/v2/guide/components-slots.html#废弃了的语法)不同。
+
+  > `v-slot` 指令自 Vue 2.6.0 起被引入，提供更好的支持 `slot` 和 `slot-scope` attribute 的 API 替代方案。`v-slot` 完整的由来参见这份 [RFC](https://github.com/vuejs/rfcs/blob/master/active-rfcs/0001-new-slot-syntax.md)。在接下来所有的 2.x 版本中 `slot` 和 `slot-scope` attribute 仍会被支持，但已经被官方废弃且不会出现在 Vue 3 中。
+
 - `<slot> 默认内容</slot>` : 插槽
   - 父组件往子组件添加内容, 使用插槽标签使用添加的内容
   - 可以设置默认值, 父组件未添加内容时显示
-- `<slot name="header"></slot>` : 命名插槽
+- `<slot name="header"></slot>` : 具名插槽
 
 ```html
 <body>
   <div id="root">
-    <child content="hello">
-      <div class="header" slot="header">header</div>
-      <div class="header" slot="footer">footer</div>
+    <child>
+      <!-- 旧语法 -->
+      <!-- <div class="header" slot="header">header</div>
+      <div class="header" slot="footer">footer</div> -->
+
+      <!-- template v-slot 具名插槽,新语法 -->
+      <template v-slot:header>
+        <div>这是头部</div>
+      </template>
+      <template v-slot:footer>
+        <div>这是底部</div>
+      </template>
     </child>
+    <!-- 后备内容 -->
+    <submit-button>
+      Save
+    </submit-button>
   </div>
 
   <script>
     Vue.component('child', {
+      // 自 2.6.0 起有所更新。已废弃的使用 slot attribute 的语法
       template: `<div>
-        <slot name="header"></slot>
+        <slot name="header">9999</slot>
         <div>content</div>
         <slot name="footer"></slot>
         </div>
+        `
+    })
+    // Vue 官方示例: 后备内容
+    Vue.component('submit-button', {
+      template: `
+        <button type="submit">
+          <slot>Submit</slot>
+        </button>
         `
     })
 
@@ -1182,19 +1271,175 @@ var vm = new Vue({
 
 ## 4-7 作用域插槽
 
-- 必须使用 `template` 标签包裹, `slot-scope="props"` 指定存储数据的变量, `:item=item` 要传递的数据
+- ~~必须使用 `template` 标签包裹, `slot-scope="props"` 指定存储数据的变量, `:item=item` 要传递的数据~~
+
+
+
+- 独占默认插槽的缩写语法
+
+  - 绑定在 `<slot>` 元素上的 attribute 被称为**插槽 prop**。现在在父级作用域中，我们可以使用带值的 `v-slot` 来定义我们提供的插槽 prop 的名字：
+
+    ```html
+    <current-user>
+      <template v-slot:default="slotProps">
+        {{ slotProps.user.firstName }}
+      </template>
+    </current-user>
+    ```
+
+    这种写法还可以更简单。就像假定未指明的内容对应默认插槽一样，不带参数的 `v-slot` 被假定对应默认插槽：
+
+    ```html
+    <current-user v-slot="slotProps">
+      {{ slotProps.user.firstName }}
+    </current-user>
+    ```
+
+    
+
+  - 注意默认插槽的缩写语法**不能**和具名插槽混用，因为它会导致作用域不明确：
+
+    ```html
+    <!-- 无效，会导致警告 -->
+    <current-user v-slot="slotProps">
+      {{ slotProps.user.firstName }}
+      <template v-slot:other="otherSlotProps">
+        slotProps is NOT available here
+      </template>
+    </current-user>
+    ```
+
+  - 只要出现多个插槽，请始终为*所有的*插槽使用完整的基于 `<template>` 的语法：
+
+    ```html
+    <current-user>
+      <template v-slot:default="slotProps">
+        {{ slotProps.user.firstName }}
+      </template>
+    
+      <template v-slot:other="otherSlotProps">
+        ...
+      </template>
+    </current-user>
+    ```
+
+- 解构插槽 Prop
+
+  - `v-slot` 的值实际上可以是任何能够作为函数定义中的参数的 JavaScript 表达式。所以在支持的环境下 ([单文件组件](https://cn.vuejs.org/v2/guide/single-file-components.html)或[现代浏览器](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#浏览器兼容))，你也可以使用 [ES2015 解构](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#解构对象)来传入具体的插槽 prop，如下：
+
+    ```html
+    <current-user v-slot="{ user }">
+      {{ user.firstName }}
+    </current-user>
+    ```
+
+  - 这样可以使模板更简洁，尤其是在该插槽提供了多个 prop 的时候。它同样开启了 prop 重命名等其它可能，例如将 `user` 重命名为 `person`：
+
+    ```html
+    <current-user v-slot="{ user: person }">
+      {{ person.firstName }}
+    </current-user>
+    ```
+
+    你甚至可以定义后备内容，用于插槽 prop 是 undefined 的情形：
+
+    ```html
+    <current-user v-slot="{ user = { firstName: 'Guest' } }">
+      {{ user.firstName }}
+    </current-user>
+    ```
+
+- ### 动态插槽名
+
+  > 2.6.0 新增
+
+  [动态指令参数](https://cn.vuejs.org/v2/guide/syntax.html#动态参数)也可以用在 `v-slot` 上，来定义动态的插槽名：
+
+  ```html
+  <base-layout>
+    <template v-slot:[dynamicSlotName]>
+      ...
+    </template>
+  </base-layout>
+  ```
+
+- ### 具名插槽的缩写
+
+  > 2.6.0 新增
+
+  跟 `v-on` 和 `v-bind` 一样，`v-slot` 也有缩写，即把参数之前的所有内容 (`v-slot:`) 替换为字符 `#`。例如 `v-slot:header` 可以被重写为 `#header`：
+
+  ```html
+  <base-layout>
+    <template #header>
+      <h1>Here might be a page title</h1>
+    </template>
+  
+    <p>A paragraph for the main content.</p>
+    <p>And another one.</p>
+  
+    <template #footer>
+      <p>Here's some contact info</p>
+    </template>
+  </base-layout>
+  ```
+
+  然而，和其它指令一样，该缩写只在其有参数的时候才可用。这意味着以下语法是无效的：
+
+  ```html
+  <!-- 这样会触发一个警告 -->
+  <current-user #="{ user }">
+    {{ user.firstName }}
+  </current-user>
+  ```
+
+  如果你希望使用缩写的话，你必须始终以明确插槽名取而代之：
+
+  ```html
+  <current-user #default="{ user }">
+    {{ user.firstName }}
+  </current-user>
+  ```
+
+- 代码
 
 ```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>作用域插槽.html</title>
+  <script src="./vue.js"></script>
+</head>
+
 <body>
   <div id="root">
+    <!-- 旧语法 -->
     <child>
       <template slot-scope="props">
         <h1>{{props.item}}</h1>
       </template>
     </child>
+    <!-- 官方示例 -->
+    <!-- 绑定在 <slot> 元素上的 attribute 被称为插槽 prop。
+      现在在父级作用域中，我们可以使用带值的 v-slot 来定义
+      我们提供的插槽 prop 的名字： -->
+    <current-user>
+      <template #default="{user, person = { lastName:'Guest'}}">
+        {{ user.lastName }}-{{person.lastName}}
+      </template>
+      <!-- template 的作用域插槽名要与 slot 的 name 一致 -->
+      <template #other="{user, person = { lastName:'Guest'}}">
+        {{ user.lastName }}-{{person.lastName}}
+      </template>
+    </current-user>
   </div>
 
   <script>
+    // 旧语法
     Vue.component('child', {
       data: function () {
         return {
@@ -1207,11 +1452,35 @@ var vm = new Vue({
         `
     })
 
+    // 官方示例
+    // 为了让 user 在父级的插槽内容中可用，
+    // 我们可以将 user 作为 <slot> 元素的一个 attribute 绑定上去：
+    Vue.component('current-user', {
+      data: function () {
+        return {
+          user: {
+            lastName: 'Li',
+            firstName: 'Si'
+          }
+        }
+      },
+      template: `
+        <span>
+          <slot :user="user" name="default">{{user.firstName}}</slot>
+          <br>
+          <slot :user="user" name="other">{{user.firstName}}</slot>
+        </span>
+        `
+    })
+
+
     var vm = new Vue({
       el: '#root'
     })
   </script>
 </body>
+
+</html>
 ```
 
 
@@ -1219,6 +1488,16 @@ var vm = new Vue({
 ## 4-8 动态组件与 v-once 指令
 
 - 动态组件: `<component :is="componentId"></component>`
+
+  - 在动态组件上使用 `keep-alive` : 保持这些组件的状态，以避免反复重渲染导致的性能问题
+
+  - ```html
+    <!-- 失活的组件将会被缓存！-->
+    <keep-alive>
+      <component v-bind:is="currentTabComponent"></component>
+    </keep-alive>
+    ```
+
 - 使用 `v-once` 指令,把组件存入内存中而不销毁,提高效率
 
 ```html
@@ -1264,6 +1543,38 @@ var vm = new Vue({
 	本章还扩展了 Vue 中多元素及列表过渡效果实现的知识，
 	并会带同学们学习如何对通用动画效果进行代码封装。...
 ## 5-1 Vue动画 - Vue中CSS动画原理
+
+- 显示动画
+
+![image-20200130195731065](readme.assets/image-20200130195731065.png)
+
+- 隐藏动画
+
+![image-20200130195829005](readme.assets/image-20200130195829005.png)
+
+- #### 过渡的类名
+
+  在进入/离开的过渡中，会有 6 个 class 切换。
+
+  1. `v-enter`：定义进入过渡的开始状态。在元素被插入之前生效，在元素被插入之后的下一帧移除。
+
+  2. `v-enter-active`：定义进入过渡生效时的状态。在整个进入过渡的阶段中应用，在元素被插入之前生效，在过渡/动画完成之后移除。这个类可以被用来定义进入过渡的过程时间，延迟和曲线函数。
+
+  3. `v-enter-to`: **2.1.8版及以上** 定义进入过渡的结束状态。在元素被插入之后下一帧生效 (与此同时 `v-enter` 被移除)，在过渡/动画完成之后移除。
+
+  4. `v-leave`: 定义离开过渡的开始状态。在离开过渡被触发时立刻生效，下一帧被移除。
+
+  5. `v-leave-active`：定义离开过渡生效时的状态。在整个离开过渡的阶段中应用，在离开过渡被触发时立刻生效，在过渡/动画完成之后移除。这个类可以被用来定义离开过渡的过程时间，延迟和曲线函数。
+
+  6. `v-leave-to`: **2.1.8版及以上** 定义离开过渡的结束状态。在离开过渡被触发之后下一帧生效 (与此同时 `v-leave` 被删除)，在过渡/动画完成之后移除。
+
+     > 对于这些在过渡中切换的类名来说，如果你使用一个没有名字的 ``，则 `v-` 是这些类名的默认前缀。如果你使用了 ``，那么 `v-enter` 会替换为 `my-transition-enter`。
+     >
+     > `v-enter-active` 和 `v-leave-active` 可以控制进入/离开过渡的不同的缓和曲线，在下面章节会有个示例说明。
+
+
+
+
 
 
 
