@@ -1572,9 +1572,9 @@ var vm = new Vue({
      >
      > `v-enter-active` 和 `v-leave-active` 可以控制进入/离开过渡的不同的缓和曲线，在下面章节会有个示例说明。
 
+```
 
-
-
+```
 
 
 
