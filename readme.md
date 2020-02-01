@@ -1545,6 +1545,8 @@ var vm = new Vue({
 ## 5-1 Vue动画 - Vue中CSS动画原理
 
 - 显示动画
+- 条件渲染 (使用 `v-if`)
+- 条件展示 (使用 `v-show`)
 
 ![image-20200130195731065](readme.assets/image-20200130195731065.png)
 
@@ -1572,37 +1574,559 @@ var vm = new Vue({
      >
      > `v-enter-active` 和 `v-leave-active` 可以控制进入/离开过渡的不同的缓和曲线，在下面章节会有个示例说明。
 
-```
+```html
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>vue中css动画原理</title>
+  <script src="./vue.js"></script>
+  <style>
+    .fade-enter {
+      opacity: 0;
+    }
+
+    .fade-enter-active {
+      transition: opacity 2s;
+    }
+
+    .fade-enter-to {
+      opacity: 1;
+    }
+
+    .fade-leave {
+      opacity: 1;
+    }
+
+    .fade-leave-active {
+      transition: opacity 2s;
+    }
+
+    .fade-leave-to {
+      opacity: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <button @click="show=!show">{{show}}</button>
+    <transition name="fade">
+      <p v-if="show">Hello</p>
+    </transition>
+    <transition name="fade">
+      <p v-show="show">Hello</p>
+    </transition>
+  </div>
+
+  <script>
+    var vm = new Vue({
+      el: "#root",
+      data: {
+        show: true
+      }
+    })
+  </script>
+</body>
+
+</html>
 ```
 
 
 
 ## 5-2 在Vue中使用 animate.css 库
 
+- CSS3 方式
+
+```
+<style>
+    @keyframes bounce-in {
+      0% {
+        transform: scale(0);
+      }
+
+      50% {
+        transform: scale(1.5);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .fade-enter-active {
+      transform-origin: left center;
+      animation: bounce-in 1s;
+    }
+
+    .fade-leave-active {
+      transform-origin: left center;
+      animation: bounce-in 1s reverse;
+    }
+  </style>
+```
+
+
+
+- ### [自定义过渡的类名](https://cn.vuejs.org/v2/guide/transitions.html#自定义过渡的类名)
+
+  > https://github.com/daneden/animate.css
+  >
+  > https://daneden.github.io/animate.css
+
+  我们可以通过以下 attribute 来自定义过渡类名：
+
+  - `enter-class`
+  - `enter-active-class`
+  - `enter-to-class` (2.1.8+)
+  - `leave-class`
+  - `leave-active-class`
+  - `leave-to-class` (2.1.8+)
+
+  他们的优先级高于普通的类名，这对于 Vue 的过渡系统和其他第三方 CSS 动画库，如 [Animate.css](https://daneden.github.io/animate.css/) 结合使用十分有用。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>5.2.vue中使用animate.css动画库</title>
+  <script src="./vue.js"></script>
+  <link rel="stylesheet" href="./animate.css">
+</head>
+
+<body>
+  <div id="root">
+    <button @click="show=!show">{{show}}</button>
+    <transition name="fade" enter-active-class="animated swing" leave-active-class="animated shake">
+      <p v-if="show">Hello</p>
+    </transition>
+    <transition name="fade">
+      <p v-show="show">Hello</p>
+    </transition>
+  </div>
+
+  <script>
+    
+
+    var vm = new Vue({
+      el: "#root",
+      data: {
+        show: true
+      }
+    })
+  </script>
+</body>
+
+</html>
+```
+
 
 
 ## 5-3 在Vue中同时使用过渡和动画
+
+1. `appear-active-class="animated swing"` : 初始化时显示动画
+2. `:duration="{enter:5000, leave:10000}" ` / `:duration="10000" ` : 设置动画时长
+3. `type="transition"` : 设置以哪个动画时长为准
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>5.3.vue同时使用过渡和动画</title>
+  <script src="./vue.js"></script>
+  <link rel="stylesheet" href="./animate.css">
+  <style>
+    .fade-enter,
+    .fade-leave-to {
+      opacity: 0;
+    }
+
+    .fade-enter-active,
+    .fade-leave-active {
+      transition: opacity 3s;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <button @click="show=!show">{{show}}</button>
+    <transition name="fade" :duration="{enter:5000, leave:10000}" enter-active-class="animated swing fade-enter-active"
+      leave-active-class="animated shake fade-leave-active" appear appear-active-class="animated swing">
+      <p v-if="show">Hello</p>
+    </transition>
+    <transition name="fade" appear appear-active-class="animated swing">
+      <p v-show="show">World</p>
+    </transition>
+  </div>
+
+  <script>
+    var vm = new Vue({
+      el: "#root",
+      data: {
+        show: true
+      }
+    })
+  </script>
+</body>
+
+</html>
+```
 
 
 
 ## 5-4 Vue中的 Js 动画与 Velocity.js 的结合
 
+- `before-enter` : 自动触发
+- `enter` : 需要执行 `done()` 才能触发下一个函数 
+- `after-enter` : 需要执行 `done()` 才能被触发
+- `before-leave/ leave/ after-leave/` 用法与 `enter` 一致
+
+```html
+<body>
+  <div id="root">
+    <!-- before-leave/ leave/ after-leave/ 用法与 enter 一致 -->
+    <button @click="show=!show">{{show}}</button>
+    <transition name="fade" @before-enter="handlBeforeEnter" @enter="handleEnter" @after-enter="handleAfterEnter">
+      <p v-if="show">Hello</p>
+    </transition>
+  </div>
+
+  <script>
+    
+
+    var vm = new Vue({
+      el: "#root",
+      data: {
+        show: true
+      },
+      methods: {
+        handlBeforeEnter: function (el) {
+          el.style.color = "yellow"
+        },
+        handleEnter: function (el, done) {
+          setTimeout(() => {
+            el.style.color = "blue"
+          }, 2000)
+          setTimeout(() => {
+            done()
+          }, 3000)
+        },
+        handleAfterEnter: function (el) {
+          el.style.color = "green"
+        }
+      }
+    })
+  </script>
+</body>
+```
+
+- ### Velocity.js
+
+  > http://velocityjs.org/
+  >
+  > 更多使用方法参考官方文档
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>5.4.vue中的动画与velocity.js结合</title>
+  <script src="./vue.js"></script>
+  <script src="./velocity.min.js"></script>
+</head>
+
+<body>
+  <div id="root">
+    <!-- before-leave/ leave/ after-leave/ 用法与 enter 一致 -->
+    <button @click="show=!show">{{show}}</button>
+    <transition name="fade" @before-enter="handlBeforeEnter" @enter="handleEnter" @after-enter="handleAfterEnter">
+      <p v-if="show">Hello</p>
+    </transition>
+  </div>
+
+  <script>
+    var vm = new Vue({
+      el: "#root",
+      data: {
+        show: true
+      },
+      methods: {
+        handlBeforeEnter: function (el) {
+          el.style.opacity = 0
+        },
+        handleEnter: function (el, done) {
+          Velocity(el, {
+            opacity: 1
+          }, {
+            duration: 1000,
+            complete: done
+          })
+        },
+        handleAfterEnter: function (el) {
+          console.log("done");
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
+```
+
 
 
 ## 5-5 Vue中多个元素或组件的过渡
+
+- ### 元素之间过渡效果
+
+  - 为每个元素添加 key 值, 防止 Vue 对元素复用, 才能显示每个组件/元素的效果
+  - `<transition mode="out-in">` : 隐藏完再进入, 或进入后再隐藏 `in-out`
+
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+  
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>5.5.vue中多个元素或组件过渡</title>
+    <script src="./vue.js"></script>
+    <style>
+      .v-enter,
+      .v-leave-to {
+        opacity: 0;
+      }
+  
+      .v-enter-active,
+      .v-leave-active {
+        transition: opacity 1s;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <div id="root">
+      <button @click="show=!show">{{show}}</button>
+      <!-- 如果不命名 Vue 自动添加 v-enter 这样的类名 -->
+      <transition mode="out-in">
+        <p v-if="show" key="hello">Hello</p>
+        <p v-else key="world">World</p>
+      </transition>
+    </div>
+  
+    <script>
+      var vm = new Vue({
+        el: "#root",
+        data: {
+          show: true
+        }
+      })
+    </script>
+  </body>
+  
+  </html>
+  ```
+
+- ### 组件之间过渡效果
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>5.5.vue中多个元素或组件过渡</title>
+  <script src="./vue.js"></script>
+  <style>
+    .v-enter,
+    .v-leave-to {
+      opacity: 0;
+    }
+
+    .v-enter-active,
+    .v-leave-active {
+      transition: opacity 1s;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <button @click="handleClick">{{type}}</button>
+    <!-- 如果不命名 Vue 自动添加 v-enter 这样的类名 -->
+    <transition mode="out-in">
+      <component :is="type"></component>
+    </transition>
+  </div>
+
+  <script>
+    Vue.component('child', {
+      template: '<div>child</div>'
+    })
+    Vue.component('child-one', {
+      template: '<div>child-one</div>'
+    })
+
+    var vm = new Vue({
+      el: "#root",
+      data: {
+        type: 'child'
+      },
+      methods: {
+        handleClick: function () {
+          this.type = this.type === 'child' ? this.type = 'child-one' : this.type = 'child'
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
+```
 
 
 
 ## 5-6 Vue中的列表过渡
 
+- `<transition-group>` : 自动给每个 div 加上 `<transition>` 标签
+
+```html
+<body>
+  <div id="root">
+    <button @click="handleClick">按钮</button>
+    <transition-group>
+      <div v-for="(item, index) in list" :key="index">
+        {{item.title}}
+      </div>
+    </transition-group>
+  </div>
+
+  <script>
+    var count = 0
+    var vm = new Vue({
+      el: "#root",
+      data: {
+        list: []
+      },
+      methods: {
+        handleClick: function () {
+          this.list.push({
+            id: count++,
+            title: "hello World"
+          })
+        }
+      }
+    })
+  </script>
+</body>
+```
+
 
 
 ## 5-7 Vue中的动画封装
 
+- 动画封装在组件中
+  - 使用组件的方法和 JS 动画
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>5.7.vue动画封装</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="root">
+    <button @click="handleClick">toggle</button>
+    <fade :show="show">
+      <p>Hello World</p>
+    </fade>
+    <fade :show="show">
+      <h1>asdfASD</h1>
+    </fade>
+  </div>
+
+  <script>
+    Vue.component('fade', {
+      props: ['show'],
+      template: `
+        <transition @before-enter="handleBeforeEnter" @enter="handleEnter">
+          <slot v-if="show"></slot>
+        </transition>
+      `,
+      methods: {
+        handleBeforeEnter: function (el) {
+          el.style.color = "red"
+        },
+        handleEnter: function (el, done) {
+          setTimeout(() => {
+            el.style.color = "green"
+            done()
+          }, 2000)
+        }
+      }
+    })
+
+    var vm = new Vue({
+      el: "#root",
+      data: {
+        show: false
+      },
+      methods: {
+        handleClick: function () {
+          this.show = !this.show
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
+```
+
 
 
 ## 5-8 本章小节
+
+- ### 动态过渡
+
+  - 在 Vue 中即使是过渡也是数据驱动的！动态过渡最基本的例子是通过 `name` attribute 来绑定动态值。
+  - `velocity` : 用变量控制它的参数实现动态过渡
+
+- ### 状态过渡
+
+  Vue 的过渡系统提供了非常多简单的方法设置进入、离开和列表的动效。那么对于数据元素本身的动效呢，比如：
+
+  - 数字和运算
+  - 颜色的显示
+  - SVG 节点的位置
+  - 元素的大小和其他的属性
+
+  这些数据要么本身就以数值形式存储，要么可以转换为数值。有了这些数值后，我们就可以结合 Vue 的响应式和组件系统，使用第三方库来实现切换元素的过渡状态。
 
 
 
