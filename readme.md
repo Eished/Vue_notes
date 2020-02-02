@@ -2137,19 +2137,136 @@ var vm = new Vue({
 	完成项目开发前的准备工作。...
 ## 6-1 Vue项目预热 - 环境配置
 
+1. Node.js 长期支持版LTS
 
+2. Git 和 gitee.com
+
+   - 设置ssh秘钥, 创建项目等相关配置
+
+3. vue 和 webpack
+
+   ```shell
+   npm install -g @vue/cli
+   
+   ## vue 安装快速原型开发工具
+   npm install -g @vue/cli-service-global
+   ## nvm 切换 node 版本10.0 以上
+   
+   ## 安装 eslint-plugin-vue
+   npm install eslint-plugin-vue -D
+   
+   # 创建工程
+   vue init webpack my-project
+   ```
+
+   ```shell
+   cd travel
+   npm run dev
+   cd ../
+   git add .
+   git commit 
+   git push
+   ```
+
+   
 
 ## 6-2 Vue项目预热 - 项目代码介绍
 
-
+- read.me : vue 项目命令介绍
+- package.json : 项目依赖
+- package-lock.json : 依赖的包的具体参数
+- index.html : 首页
+- .gitignore : git忽略文件
+- .eslintrc.js : eslint配置文件
+- .eslintignore.js : eslint忽略文件
+- .editorconfig : 编辑器配置文件
+- .babelrc : 代码转换配置文件
+- static : 静态文件
+- src : 项目源代码
+- node_modules : 依赖包
+  - main.js : 项目入口文件
+  - App.vue : 根组件
+  - router : 路由
+  - components : 组件
+  - assets : 图片资源
+- config : 项目配置
+  - index.js : 基础配置
+  - prod.env.js : 线上环境配置信息
+  - dev.env.js : 开发环境配置信息
+- build : 打包后的代码
+  - webpack 配置项
 
 ## 6-3 Vue项目预热 - 单文件组件与Vue中的路由
+
+- index.js
+
+```js
+import Vue from 'vue'
+import Router from 'vue-router'
+import Home from '../pages/home/Home'
+import List from '../pages/list/List'
+Vue.use(Router)
+
+export default new Router({
+  routes: [{
+    path: '/',
+    name: 'Home',
+    component: Home
+  }, {
+    path: '/list',
+    name: 'List',
+    component: List
+  }]
+})
+
+```
+
+- App.vue
+
+```vue
+<template>
+  <div id="app">
+    <router-view />
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'App'
+}
+</script>
+
+<style>
+</style>
+
+```
+
+- Home.vue
+
+```vue
+<template>
+  <div>Home</div>
+</template>
+
+<script>
+export default {
+  name: 'Home'
+}
+</script>
+
+<style>
+</style>
+
+```
 
 
 
 ## 6-4 Vue项目预热 - 单页应用VS多页应用
 
-
+- 多页应用
+  - 页面跳转, 返回HTML : 
+    - 优点: 首屏时间快, SEO效果好
+    - 缺点: 页面切换慢
 
 ## 6-5 Vue项目预热 - 项目代码初始化
 
