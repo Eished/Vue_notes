@@ -2264,50 +2264,819 @@ export default {
 ## 6-4 Vue项目预热 - 单页应用VS多页应用
 
 - 多页应用
-  - 页面跳转, 返回HTML : 
+  - 页面返回HTML : 
     - 优点: 首屏时间快, SEO效果好
     - 缺点: 页面切换慢
+- 单页应用
+  - 页面使用 JS 动态渲染
+    - 优点: 页面切换快
+    - 缺点: 首屏事件稍慢, SEO差
 
 ## 6-5 Vue项目预热 - 项目代码初始化
 
+- index.html
 
+```html
+minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"
+```
+
+- `reset.css` : 网上下载
+- `border.css` : 网上下载, 解决移动端 1px 不是屏幕的一像素问题
+- `fastclick` 库 : 解决移动端某些机型, click 事件延迟 300ms 的问题
+  - `npm install fastclick --save`
+- `https://www.iconfont.cn/` : 注册字体图标并创建项目
+- `git add .`
+- `git commit -m 项目初始化`
+- `git push`
 
 # 第7章 项目实战 - 旅游网站首页开发
 	本章正式进入项目开发环节，将带大家完整的实现项目中的首页，
 	涵盖的功能点包含header组件拆分、iconfont引入、多区块轮播、热销推荐及周末游等展示模块。
 ## 7-1 Vue项目首页 - header区域开发
 
+- 安装 stylus 组件, 在 CSS 可以使用变量: 
+  - `npm i stylus --save`  
+  - `npm i stylus-loader --save`
+  - `--save` 添加到依赖文件
+  - ` <style lang="stylus" scoped>` : 使用 stylus 语法, scoped 样式只对当前组件生效
+- `1rem = html font-size = 50px` 
 
+```vue
+<template>
+  <div class="header">
+    <div class="header-left">Back</div>
+    <div class="header-input">输入城市/景点/游玩主题</div>
+    <div class="header-right">city</div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HomeHeader'
+}
+</script>
+
+<style lang="stylus" scoped>
+// 1rem = html font-size = 50px
+.header {
+  display: flex;
+  line-height: 0.86rem;
+  background: #00bcd4;
+  color: #fff;
+}
+
+.header-left {
+  width: 0.64rem;
+  float: left;
+}
+
+.header-input {
+  flex: 1;
+  height: 0.64rem;
+  line-height: 0.64rem;
+  margin-left: 0.2rem;
+  margin-top: 0.12rem;
+  background: #fff;
+  border-radius: 0.1rem;
+  color: #ccc;
+}
+
+.header-right {
+  width: 1.24rem;
+  text-align: center;
+  float: right;
+}
+</style>
+
+```
+
+- #### VScode 设置 stylus 
+
+  ### 1.  设置步骤
+
+  - VSCode 扩展商店中搜索 `stylus Supremacy` 进行安装
+  - VSCode 扩展商店中搜索 `language-stylus` 进行安装
+  - 之后在用户设置 `setting.json` 配置文件中添加如下配置即可
+
+  ```json
+  // 以下为stylus配置
+   "stylusSupremacy.insertColons": false, // 是否插入冒号
+   "stylusSupremacy.insertSemicolons": false, // 是否插入分好
+   "stylusSupremacy.insertBraces": false, // 是否插入大括号
+   "stylusSupremacy.insertNewLineAroundImports": false, // import之后是否换行
+   "stylusSupremacy.insertNewLineAroundBlocks": false, // 两个选择器中是否换行
+  ```
+
+  
 
 ## 7-2 Vue项目首页 - iconfont 的使用和代码优化
 
+1. iconfont 的使用:
 
+   1. 在 iconfont.cn 下载字体图标
+
+2. 代码优化: 
+
+   1. 别名:
+
+      1. Vue中 `@` 符号代表项目的 src 目录
+      2. 在 style 标签下 `~@` 代表 src 目录, 都要加 `~`
+
+   2. 自定义别名:
+
+      1. 修改 `build/webpack.base.conf.js`
+      2. 重启服务器
+
+      ```js
+      resolve: {
+          extensions: ['.js', '.vue', '.json'],
+          alias: {
+            'vue$': 'vue/dist/vue.esm.js',
+            '@': resolve('src'),
+            'styles': resolve('src/assets/styles/'),
+          }
+      ```
+
+   
 
 ## 7-3 Vue项目首页 - 首页轮播图
 
+- ```shell
+  npm install vue-awesome-swiper@2.6.7 --save
+  ```
 
+- Swiper.vue
+
+  - ```vue
+    data () {
+        return {
+          swiperOption: {
+            // some swiper options/callbacks
+            // 所有的参数同 swiper 官方 api 参数
+            pagination: '.swiper-pagination',
+            autoplay: 2000, // 可设置数值来指定播放速度
+            autoplayDisableOnInteraction: false,   // 用户操作swiper之后，是否禁止autoplay
+            speed: 400,     // 切换图片速度
+            loop: true      // 循环播放
+          }
+        }
+    ```
+
+    
+
+```vue
+<template>
+  <div class="wrapper">
+    <swiper :options="swiperOption">
+      <!-- slides -->
+      <swiper-slide v-for="item of swiperList"
+                    :key="item.id">
+        <img class="swiper-img"
+             :src="item.imgUrl">
+      </swiper-slide>
+      <!-- Optional controls -->
+      <div class="swiper-pagination"
+           slot="pagination"></div>
+    </swiper>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HomeSwiper',
+  data () {
+    return {
+      swiperOption: {
+        // some swiper options/callbacks
+        // 所有的参数同 swiper 官方 api 参数
+        pagination: '.swiper-pagination',
+        loop: true
+      },
+      swiperList: [{
+        id: '0001',
+        imgUrl: 'https://imgs.qunarzz.com/vc/24/36/10/3fc94d042ae62de380581d4c98.jpg_92.jpg'
+      }, {
+        id: '0002',
+        imgUrl: 'https://imgs.qunarzz.com/vc/44/e9/86/95bc36c9e1c06ebd68bdfe222e.jpg_92.jpg'
+      }]
+    }
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+// 样式穿透 可加 !important
+.wrapper >>> .swiper-pagination-bullet-active
+  background white
+.wrapper
+  // 自适应高宽代码
+  overflow hidden
+  width 100%
+  height 0
+  padding-bottom 30.476%
+  .swiper-img
+    width 100%
+</style>
+
+```
+
+- 自适应宽高, 占位写法
+
+  ```
+  // 自适应高宽代码
+    overflow hidden
+    width 100%
+    height 0
+    padding-bottom 30.476%
+  ```
+
+  
 
 ## 7-4 Vue项目首页 - 图标区域页面布局
+
+- Icons.vue
+
+```vue
+<template>
+  <div class="icons">
+    <div class="icon">
+      <div class="icon-img">
+        <img class="icon-img-content"
+             src="//s.qunarzz.com/homenode/images/touchheader/piao.png"
+             alt="">
+      </div>
+      <p class="icon-desc">热门景点</p>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HomeIcons'
+}
+</script>
+
+<style  lang="stylus" scoped>
+@import '~styles/varibles.styl'
+.icons
+  overflow hidden
+  height 0
+  padding-bottom 50%
+  background #eee
+  .icon
+    position relative
+    width 25%
+    height 0
+    float left
+    overflow hidden
+    padding-bottom 25%
+    .icon-img
+      position absolute
+      top 0
+      left 0
+      right 0
+      bottom 0.44rem
+      box-sizing border-box
+      padding 0.1rem
+      .icon-img-content
+        display block
+        margin 0 auto
+        height 100%
+    .icon-desc
+      position absolute
+      left 0
+      right 0
+      bottom 0
+      height 0.44rem
+      line-height 0.44rem
+      text-align center
+      color $darkTextColor
+</style>
+
+```
 
 
 
 ## 7-5 Vue项目首页 - 图标区域逻辑实现
 
+- Icons.vue
+
+```vue
+<template>
+  <div class="icons">
+    <swiper>
+      <!-- slides -->
+      <swiper-slide v-for="(page, index) in pages"
+                    :key="index">
+        <div class="icon"
+             v-for="item of page"
+             :key="item.id">
+          <div class="icon-img">
+            <img class="icon-img-content"
+                 :src="item.imgUrl">
+          </div>
+          <p class="icon-desc">{{item.desc}}</p>
+        </div>
+      </swiper-slide>
+    </swiper>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HomeIcons',
+  data () {
+    return {
+      swiperOption: {
+        // some swiper options/callbacks
+        // 所有的参数同 swiper 官方 api 参数
+        // pagination: '.swiper-pagination'
+      },
+      iconList: [{
+        id: '0001',
+        imgUrl: '//s.qunarzz.com/homenode/images/touchheader/piao.png',
+        desc: '门票景点'
+      }, {
+        id: '0002',
+        imgUrl: '//s.qunarzz.com/homenode/images/touchheader/package.png',
+        desc: '度假'
+      }, {
+        id: '0003',
+        imgUrl: '//s.qunarzz.com/homenode/images/touchheader/train.png',
+        desc: '火车票'
+      }, {
+        id: '0004',
+        imgUrl: '//s.qunarzz.com/homenode/images/touchheader/flight.png',
+        desc: '机票'
+      }, {
+        id: '0005',
+        imgUrl: '//s.qunarzz.com/homenode/images/touchheader/hotel.png',
+        desc: '酒店'
+      }, {
+        id: '0006',
+        imgUrl: 'https://picbed.qunarzz.com/1316dc82d1ce6259686d5a68880e5a9d.png',
+        desc: '攻略'
+      }, {
+        id: '0007',
+        imgUrl: 'https://picbed.qunarzz.com/ae617a31e0bd5803d76918b817f6d942.png',
+        desc: '自由行'
+      }, {
+        id: '0008',
+        imgUrl: '//s.qunarzz.com/homenode/images/touchheader/package.png',
+        desc: '度假'
+      }, {
+        id: '0009',
+        imgUrl: '//s.qunarzz.com/homenode/images/touchheader/package.png',
+        desc: '度假'
+      }, {
+        id: '0010',
+        imgUrl: '//s.qunarzz.com/homenode/images/touchheader/package.png',
+        desc: '度假'
+      }]
+    }
+  },
+  computed: {
+    pages () {
+      const pages = []
+      this.iconList.forEach((item, index) => {
+        const page = Math.floor(index / 8)
+        if (!pages[page]) {
+          pages[page] = []
+        }
+        pages[page].push(item)
+      })
+      return pages
+    }
+  }
+}
+</script>
+
+<style  lang="stylus" scoped>
+@import '~styles/varibles.styl'
+@import '~styles/mixins.styl'
+.icons >>> .swiper-container
+  height 0
+  padding-bottom 50%
+  .icon
+    position relative
+    width 25%
+    height 0
+    float left
+    overflow hidden
+    padding-bottom 25%
+    .icon-img
+      position absolute
+      top 0
+      left 0
+      right 0
+      bottom 0.44rem
+      box-sizing border-box
+      padding 0.1rem
+      .icon-img-content
+        display block
+        margin 0 auto
+        height 100%
+    .icon-desc
+      position absolute
+      left 0
+      right 0
+      bottom 0
+      height 0.44rem
+      padding 0 0.1rem 0 0.1rem
+      line-height 0.44rem
+      text-align center
+      color $darkTextColor
+      ellipsis()
+</style>
+
+```
+
 
 
 ## 7-6 Vue项目首页 - 热销推荐组件开发
+
+```vue
+<template>
+  <div>
+    <div class="recommend-title">
+      <span class="discount">今日特惠</span>
+      <span class="more-discount">更多特惠 ></span>
+    </div>
+    <div class="on-sales">
+      <div class="on-sale"
+           v-for="item of saleList"
+           :key="item.id">
+        <div class="on-sale-img">
+          <img class="sale-img"
+               :src="item.imgUrl">
+        </div>
+        <div class="sale-details">
+          <p class="sale-title">{{item.title}}</p>
+          <p class="sale-desc">{{item.desc}}</p>
+          <div class="sale-price"><em>¥{{item.price}}</em><em class="sale-price-desc"> 起</em></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HomeRecommend',
+  data () {
+    return {
+      saleList: [{
+        id: '0001',
+        title: '杭州当地游 3天跟团游',
+        desc: '纯玩江南3日 人间天堂 江南水乡 杭州印象 乌镇西栅、西湖、西塘、西溪湿地',
+        price: '658',
+        imgUrl: 'https://imgs.qunarzz.com/p/tts2/1708/f7/9e813b99cb980c02.jpg_r_480x320x90_49733292.jpg'
+      }, {
+        id: '0002',
+        title: '上海-舟山 2天跟团游',
+        desc: '普陀山2日跟团游【官方推荐，祈福无购物】登佛顶山，宿精装客栈含早 多套餐可选',
+        price: '375',
+        imgUrl: 'https://imgs.qunarzz.com/p/tts7/1803/87/2544eb608b632002.jpg_r_480x320x90_d491cc98.jpg'
+      }, {
+        id: '0003',
+        title: '上海当地游 1天跟团游',
+        desc: '上海经典一日游!上海东方明珠+外滩+黄浦江游轮高端纯玩一日游! 日/夜游可选',
+        price: '209',
+        imgUrl: 'https://imgs.qunarzz.com/vs_ceph_vs_tts/bb4e26c0-2d6b-43f4-a525-2b1e14875ae4.jpg_r_480x320x90_bbfe8901.jpg'
+      }, {
+        id: '0004',
+        title: '上海-名古屋 5天自由行',
+        desc: '确认后100%出行🎉赠一晚酒店💕上海🛫名古屋5-7日自由行🎁代办签证',
+        price: '799',
+        imgUrl: 'https://imgs.qunarzz.com/p/tts4/1809/9d/f8db3b5cb0007702.jpg_r_480x320x90_2f6b0821.jpg'
+      }]
+    }
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+@import '~styles/mixins.styl'
+.recommend-title
+  margin-top 0.2rem
+  overflow hidden
+  .discount
+    float left
+    display block
+    padding 0.15rem 0.25rem 0.15rem 0.25rem
+    border-radius 0.1rem
+    margin-left 0.2rem
+    background #17C0C8
+    height 0.3rem
+    text-align center
+    line-height 0.35rem
+    font-size 0.24rem
+    color white
+  .more-discount
+    display block
+    height 0.7rem
+    line-height 0.9rem
+    margin-right 0.6rem
+    font-size 0.2rem
+    float right
+    color #757575
+.on-sales
+  width 100%
+  height 50%
+  overflow hidden
+  position relative
+  .on-sale
+    overflow hidden
+    float left
+    width 46%
+    height 48.7%
+    margin-left 2.7%
+    margin-top 0.1rem
+    .on-sale-img
+      // 自适应高宽代码
+      overflow hidden
+      height 0
+      padding-bottom 64%
+      border-radius 0.1rem
+    .sale-img
+      width 100%
+  .sale-details
+    width 94.7%
+    margin 0.16rem 0.1rem 0.1rem 0.1rem
+    .sale-title
+      left 0
+      right 0
+      bottom 0
+      height 0.44rem
+      font-size 0.27rem
+      line-height 0.44rem
+      color $darkTextColor
+      ellipsis()
+    .sale-desc
+      left 0
+      right 0
+      bottom 0
+      height 0.44rem
+      line-height 0.44rem
+      font-size 0.25rem
+      color #777
+      ellipsis()
+    .sale-price
+      color #FF7400
+      font-size 0.4rem
+      padding 0.1rem 0 0.05rem 0
+      .sale-price-desc
+        font-size 0.3rem
+</style>
+
+```
 
 
 
 ## 7-7 Vue项目首页 - 开发周末游组件
 
+```vue
+<template>
+  <div>
+    <div class="hot-title">
+      <span class="hot"><span>✈</span>当季热门度假</span>
+    </div>
+    <div class="on-sales">
+      <div class="on-sale"
+           v-for="item of saleList"
+           :key="item.id">
+        <div class="on-sale-img">
+          <img class="sale-img"
+               :src="item.imgUrl">
+        </div>
+        <div class="sale-details">
+          <p class="sale-title">{{item.title}}</p>
+          <div class="sale-price"><em>¥{{item.price}}</em></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HomeHot',
+  data () {
+    return {
+      saleList: [{
+        id: '0001',
+        title: '杭州当地游 3天跟团游',
+        desc: '纯玩江南3日 人间天堂 江南水乡 杭州印象 乌镇西栅、西湖、西塘、西溪湿地',
+        price: '3880',
+        imgUrl: 'https://imgs.qunarzz.com/p/p19/1809/b9/2a3d362aabcbb02.jpg_256x160_28907832.jpg'
+      }, {
+        id: '0002',
+        title: '上海-舟山 2天跟团游',
+        desc: '普陀山2日跟团游【官方推荐，祈福无购物】登佛顶山，宿精装客栈含早 多套餐可选',
+        price: '3880',
+        imgUrl: 'https://imgs.qunarzz.com/p/p64/1809/46/ddb72937ac938a02.jpg_256x160_5f99ddba.jpg'
+      }, {
+        id: '0003',
+        title: '上海当地游 1天跟团游',
+        desc: '上海经典一日游!上海东方明珠+外滩+黄浦江游轮高端纯玩一日游! 日/夜游可选',
+        price: '2910',
+        imgUrl: 'https://imgs.qunarzz.com/p/p97/1512/73/97da2a9e39df59f7.jpg_256x160_acb41adf.jpg'
+      }, {
+        id: '0004',
+        title: '上海-名古屋 5天自由行',
+        desc: '确认后100%出行🎉赠一晚酒店💕上海🛫名古屋5-7日自由行🎁代办签证',
+        price: '1980',
+        imgUrl: 'https://imgs.qunarzz.com/p/p42/1809/7b/6d86726444ca4e02.jpg_256x160_3e1f83e1.jpg'
+      }, {
+        id: '0005',
+        title: '上海-名古屋 5天自由行',
+        desc: '确认后100%出行🎉赠一晚酒店💕上海🛫名古屋5-7日自由行🎁代办签证',
+        price: '1183',
+        imgUrl: 'https://imgs.qunarzz.com/p/tts4/1809/9d/f8db3b5cb0007702.jpg_r_480x320x90_2f6b0821.jpg'
+      }, {
+        id: '1608',
+        title: '上海-名古屋 5天自由行',
+        desc: '确认后100%出行🎉赠一晚酒店💕上海🛫名古屋5-7日自由行🎁代办签证',
+        price: '16680',
+        imgUrl: 'https://imgs.qunarzz.com/p/p56/1809/c4/90ba238a586bf802.jpg_256x160_aec92188.jpg'
+      }, {
+        id: '0007',
+        title: '上海-名古屋 5天自由行',
+        desc: '确认后100%出行🎉赠一晚酒店💕上海🛫名古屋5-7日自由行🎁代办签证',
+        price: '2850',
+        imgUrl: 'https://imgs.qunarzz.com/p/p56/1809/c4/90ba238a586bf802.jpg_256x160_aec92188.jpg'
+      }, {
+        id: '0008',
+        title: '上海-名古屋 5天自由行',
+        desc: '确认后100%出行🎉赠一晚酒店💕上海🛫名古屋5-7日自由行🎁代办签证',
+        price: '1608',
+        imgUrl: 'https://imgs.qunarzz.com/p/tts4/1809/9d/f8db3b5cb0007702.jpg_r_480x320x90_2f6b0821.jpg'
+      }]
+    }
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+@import '~styles/mixins.styl'
+.hot-title
+  margin-top 0.4rem
+  overflow hidden
+  .hot
+    float left
+    display block
+    padding 0.15rem 0
+    border-radius 0.1rem
+    margin-left 0.2rem
+    height 0.3rem
+    line-height 0.35rem
+    font-size 0.4rem
+.on-sales
+  width 100%
+  height 50%
+  overflow hidden
+  position relative
+  .on-sale
+    overflow hidden
+    float left
+    width 46%
+    height 48.7%
+    margin-left 2.7%
+    margin-top 0.1rem
+    .on-sale-img
+      // 自适应高宽代码
+      overflow hidden
+      height 0
+      padding-bottom 64%
+      border-radius 0.1rem
+    .sale-img
+      width 100%
+  .sale-details
+    width 94.7%
+    margin 0.16rem 0.1rem 0.1rem 0.1rem
+    .sale-title
+      left 0
+      right 0
+      bottom 0
+      height 0.44rem
+      font-size 0.27rem
+      line-height 0.44rem
+      color $darkTextColor
+      ellipsis()
+    .sale-price
+      color #FF7400
+      font-size 0.4rem
+      padding 0.1rem 0 0.05rem 0
+</style>
+
+```
+
 
 
 ## 7-8 Vue项目首页 - 使用 axios 发送 ajax 请求
 
+- axios 安装
+
+  - `npm install axios --save`
+
+- proxy 设置
+
+  - config/index.js
+
+    ```js
+    proxyTable: {
+          '/api': {
+            target: 'http://localhost:8080',
+            pathRewrite: {
+              '/api': '/static/mock'
+            }
+          }
+        },
+    ```
+
 
 
 ## 7-9 Vue项目首页 - 首页父子组组件间传值
+
+- 父组件
+
+```vue
+<template>
+  <div>
+    <home-header :city="city"></home-header>
+    <home-swiper :swiperList="swiperList"></home-swiper>
+    <home-icons :iconList="iconList"></home-icons>
+    <home-recommend :recommendList="recommendList"></home-recommend>
+    <home-hot :hotList="hotList"></home-hot>
+    <home-footer></home-footer>
+  </div>
+</template>
+
+<script>
+import HomeHeader from './components/Header'
+import HomeSwiper from './components/Swiper'
+import HomeIcons from './components/Icons'
+import HomeRecommend from './components/Recommend'
+import HomeHot from './components/Hot'
+import HomeFooter from './components/Footer'
+import axios from 'axios'
+
+export default {
+  name: 'Home',
+  components: {
+    HomeHeader,
+    HomeSwiper,
+    HomeIcons,
+    HomeRecommend,
+    HomeHot,
+    HomeFooter
+  },
+  data () {
+    return {
+      city: '',
+      swiperList: [],
+      iconList: [],
+      recommendList: [],
+      hotList: []
+    }
+  },
+  methods: {
+    async getHomeInfo () {
+      var res = await axios.get('/api/index.json')
+      res = res.data
+      if (res.ret && res.data) {
+        const data = res.data
+        this.city = data.city
+        this.swiperList = data.swiperList
+        this.iconList = data.iconList
+        this.recommendList = data.recommendList
+        this.hotList = data.weekendList
+      }
+    }
+  },
+  mounted () {
+    this.getHomeInfo()
+  }
+}
+</script>
+
+<style>
+</style>
+
+```
+
+- 子组件
+
+```vue
+<script>
+export default {
+  name: 'HomeHeader',
+  props: {
+    city: String
+  }
+}
+</script>
+```
 
 
 
