@@ -3086,47 +3086,977 @@ export default {
 	在详情页面，我们还会对通用动画效果进行代码封装。
 ## 8-1 Vue项目城市选择页 - 路由配置
 
+router/index.js
+
+```vue
+export default new Router({
+  routes: [{
+    path: '/',
+    name: 'Home',
+    component: Home
+  }, {
+    path: '/city',
+    name: 'City',
+    component: City
+  }]
+})
+```
+
+City.vue
+
+```vue
+<template>
+  <div>
+    <city-header></city-header>
+    <city-search></city-search>
+  </div>
+</template>
+
+<script>
+import CityHeader from './components/Header'
+import CitySearch from './components/Search'
+export default {
+  name: 'City',
+  components: {
+    CityHeader,
+    CitySearch
+  }
+}
+</script>
+
+<style lang="stylus" scoped></style>
+
+```
+
+header.vue
+
+```vue
+<template>
+  <div class="header">
+    <router-link to="/">
+      <div class="header-left">
+        <div class="iconfont back-icon">&#xe624;</div>
+      </div>
+    </router-link>
+    <div class="city-selec">
+      城市选择
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'CityHeader'
+}
+</script>
+
+<style lang="stylus" scoped>
+@import '~styles/varibles.styl'
+.header
+  position relative
+  overflow hidden
+  height $headerHeight
+  line-height $headerHeight
+  text-align center
+  color white
+  font-size 0.32rem
+  background $bgColor
+  .header-left
+    position absolute
+    top 0
+    left 0
+    width 0.64rem
+    color white
+    float left
+    .back-icon
+      text-align center
+      font-size 0.4rem
+</style>
+
+```
+
 
 
 ## 8-2 Vue项目城市选择页 - 搜索框布局
+
+```vue
+<template>
+  <div class="search">
+    <input class="search-input"
+           type="text"
+           placeholder="输入城市名或拼音">
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'CitySearch'
+}
+</script>
+
+<style lang="stylus" scoped>
+@import '~styles/varibles.styl'
+.search
+  height 0.72rem
+  padding 0 0.1rem
+  background $bgColor
+  .search-input
+    box-sizing border-box
+    width 100%
+    height 0.62rem
+    padding 0.1rem
+    line-height 0.62rem
+    text-align center
+    border-radius 0.06rem
+    color #666
+</style>
+
+```
 
 
 
 ## 8-3 Vue项目城市选择页 - 列表布局
 
+```vue
+<template>
+  <div class="list">
+    <div class="area">
+      <div class="title border-topbottom">当前城市</div>
+      <div class="button-list">
+        <div class="button-wrapper">
+          <div class="button">北京</div>
+        </div>
+      </div>
+    </div>
+    <div class="area">
+      <div class="title border-topbottom">热门城市</div>
+      <div class="button-list">
+        <div class="button-wrapper">
+          <div class="button">北京</div>
+        </div>
+        <div class="button-wrapper">
+          <div class="button">北京</div>
+        </div>
+        <div class="button-wrapper">
+          <div class="button">北京</div>
+        </div>
+        <div class="button-wrapper">
+          <div class="button">北京</div>
+        </div>
+        <div class="button-wrapper">
+          <div class="button">北京</div>
+        </div>
+        <div class="button-wrapper">
+          <div class="button">北京</div>
+        </div>
+        <div class="button-wrapper">
+          <div class="button">北京</div>
+        </div>
+        <div class="button-wrapper">
+          <div class="button">北京</div>
+        </div>
+      </div>
+    </div>
+    <div class="area">
+      <div class="title  border-topbottom">A</div>
+      <div class="item-list">
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+      </div>
+    </div>
+    <div class="area">
+      <div class="title  border-topbottom">A</div>
+      <div class="item-list">
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+      </div>
+    </div>
+    <div class="area">
+      <div class="title  border-topbottom">A</div>
+      <div class="item-list">
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+        <div class="item border-bottom">阿拉尔</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'CityList'
+}
+</script>
+
+<style lang="stylus" scoped>
+@import '~styles/varibles.styl'
+.border-topbottom
+  &:before
+    border-color #ccc
+  &:after
+    border-color #ccc
+.border-bottom
+  &:before
+    border-color #ccc
+.list
+  overflow hidden
+  position absolute
+  top 1.58rem
+  left 0
+  right 0
+  bottom 0
+  .area
+    .title
+      line-height 0.44rem
+      font-size 0.26rem
+      background #eee
+      padding-left 0.2rem
+      color #666
+    .button-list
+      overflow hidden
+      padding 0.1rem 0.6rem 0.1rem 0.1rem
+      .button-wrapper
+        width 33.33%
+        float left
+        .button
+          padding 0.1rem 0
+          text-align center
+          margin 0.1rem
+          border 0.02rem solid #ccc
+          border-radius 0.06rem
+    .item-list
+      .item
+        line-height 0.66rem
+        padding-left 0.2rem
+</style>
+
+```
+
 
 
 ## 8-4 Vue项目城市选择页 - BetterScroll 的使用和字母表布局
+
+- 安装BetterScroll
+
+  ```shell
+  npm install better-scroll -S # install 1.x
+  npm install better-scroll@next -S # install 2.x，with full-featured plugin.
+  ```
+
+- 字母表布局
+
+```vue
+<template>
+  <ul class="list">
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+    <li class="item">A</li>
+  </ul>
+</template>
+
+<script>
+export default {
+  name: 'CityAlphabet'
+}
+</script>
+
+<style lang="stylus" scoped>
+@import '~styles/varibles.styl'
+.list
+  display flex
+  flex-direction column
+  justify-content center
+  position absolute
+  top 1.58rem
+  right 0
+  bottom 0
+  width 0.4rem
+  .item
+    line-height 0.4rem
+    text-align center
+    color $bgColor
+</style>
+
+```
 
 
 
 ## 8-5 Vue项目城市选择页 - 页面的动态数据渲染
 
+- City.vue
+
+```vue
+<template>
+  <div>
+    <city-header></city-header>
+    <city-search></city-search>
+    <city-list :cities="cities"
+               :hotCities="hotCities"></city-list>
+    <city-alphabet :cities="cities"></city-alphabet>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+import CityHeader from './components/Header'
+import CitySearch from './components/Search'
+import CityList from './components/List'
+import CityAlphabet from './components/Alphabet'
+
+export default {
+  name: 'City',
+  components: {
+    CityHeader,
+    CitySearch,
+    CityList,
+    CityAlphabet
+  },
+  data () {
+    return {
+      cities: {},
+      hotCities: {}
+    }
+  },
+  methods: {
+    async getCityInfo () {
+      var res = await axios.get('./api/city.json')
+      res = res.data
+      if (res.ret && res.data) {
+        const data = res.data
+        this.hotCities = data.hotCities
+        this.cities = data.cities
+      }
+    }
+  },
+  mounted () {
+    this.getCityInfo()
+  }
+}
+</script>
+
+<style lang="stylus" scoped></style>
+
+```
+
+- List.vue
+
+```vue
+<template>
+  <div class="list"
+       ref="wrapper">
+    <div class="content">
+      <div class="area">
+        <div class="title border-topbottom">当前城市</div>
+        <div class="button-list">
+          <div class="button-wrapper">
+            <div class="button">北京</div>
+          </div>
+        </div>
+      </div>
+      <div class="area">
+        <div class="title border-topbottom">热门城市</div>
+        <div class="button-list">
+          <div class="button-wrapper"
+               v-for="item of hotCities"
+               :key="item.id">
+            <div class="button">{{item.name}}</div>
+          </div>
+        </div>
+      </div>
+      <div class="area"
+           v-for="(item,key) of cities"
+           :key="key">
+        <div class="title  border-topbottom">{{key}}</div>
+        <div class="item-list"
+             v-for="inneritem of item"
+             :key="inneritem.id">
+          <div class="item border-bottom">{{inneritem.name}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import BScroll from 'better-scroll'
+export default {
+  name: 'CityList',
+  props: {
+    hotCities: { Array, Object },
+    cities: Object
+  },
+  mounted () {
+    this.scroll = new BScroll(this.$refs.wrapper)
+  }
+}
+</script>
+```
+
 
 
 ## 8-6 Vue项目城市选择页 - 兄弟组件数据传递
+
+```vue
+<template>
+  <div>
+    <ul class="list">
+      <li class="item"
+          v-for="item in letters"
+          :key="item"
+          @click="handleLetterClick"
+          @touchstart="handleTouchStart"
+          @touchmove="handleTouchMove"
+          @touchend="handleTouchEnd"
+          :ref="item">{{item}}</li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'CityAlphabet',
+  props: {
+    cities: Object
+  },
+  data () {
+    return {
+      touchStatus: false
+    }
+  },
+  computed: {
+    letters () {
+      const letters = []
+      for (let i in this.cities) {
+        letters.push(i)
+      }
+      return letters
+    }
+  },
+  methods: {
+    handleLetterClick (e) {
+      this.$emit('change', e.target.innerText)
+    },
+    handleTouchStart () {
+      this.touchStatus = true
+    },
+    handleTouchMove (e) {
+      if (this.touchStatus) {
+        const startY = this.$refs['A'][0].offsetTop
+        const touchY = e.touches[0].clientY - 79
+        const index = Math.floor((touchY - startY) / 20)
+        if (index >= 0 && index < this.letters.length) {
+          this.$emit('change', this.letters[index])
+        }
+      }
+    },
+    handleTouchEnd () {
+      this.touchStatus = false
+    }
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+@import '~styles/varibles.styl'
+.list
+  display flex
+  flex-direction column
+  justify-content center
+  position absolute
+  top 1.58rem
+  right 0
+  bottom 0
+  width 0.4rem
+  .item
+    line-height 0.4rem
+    text-align center
+    color $bgColor
+</style>
+
+```
 
 
 
 ## 8-7 Vue项目城市选择页 - 列表性能优化
 
+```vue
+<script>
+export default {
+  name: 'CityAlphabet',
+  props: {
+    cities: Object
+  },
+  data () {
+    return {
+      touchStatus: false,
+      startY: 0,
+      timer: null
+    }
+  },
+  updated () {
+    // 把获取的值存起来,避免重复获取
+    this.startY = this.$refs['A'][0].offsetTop
+  },
+  methods: {
+    handleLetterClick (e) {
+      this.$emit('change', e.target.innerText)
+    },
+    handleTouchStart () {
+      this.touchStatus = true
+    },
+    handleTouchMove (e) {
+      if (this.touchStatus) {
+        // 函数节流
+        if (this.timer) {
+          clearTimeout(this.timer)
+        }
+        this.timer = setTimeout(() => {
+          const touchY = e.touches[0].clientY - 79
+          const index = Math.floor((touchY - this.startY) / 20)
+          if (index >= 0 && index < this.letters.length) {
+            this.$emit('change', this.letters[index])
+          }
+        }, 16)
+      }
+    },
+    handleTouchEnd () {
+      this.touchStatus = false
+    }
+  },
+  computed: {
+    letters () {
+      const letters = []
+      for (let i in this.cities) {
+        letters.push(i)
+      }
+      return letters
+    }
+  }
+}
+</script>
+```
+
 
 
 ## 8-8 Vue项目城市选择页 - 搜索逻辑实现
+
+```vue
+<template>
+  <div>
+    <div class="search">
+      <input class="search-input"
+             type="text"
+             v-model="keyword"
+             placeholder="输入城市名或拼音">
+    </div>
+    <div class="search-content"
+         ref="search"
+         v-show="keyword">
+      <ul>
+        <li class="search-item border-bottom"
+            v-for="item of list"
+            :key="item.id">
+          {{item.name}}
+        </li>
+        <li class="search-item border-bottom"
+            v-show="hasNoData">没有找到匹配数据</li>
+      </ul>
+    </div>
+  </div>
+</template>
+
+<script>
+import BScroll from 'better-scroll'
+export default {
+  name: 'CitySearch',
+  props: {
+    cities: Object
+  },
+  data () {
+    return {
+      keyword: '',
+      list: [],
+      timer: null
+    }
+  },
+  watch: {
+    keyword () {
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+      if (!this.keyword) {
+        this.list = []
+        return
+      }
+      this.timer = setTimeout(() => {
+        const result = []
+        for (let i in this.cities) {
+          this.cities[i].forEach((value) => {
+            if (value.spell.indexOf(this.keyword) > -1 || value.name.indexOf(this.keyword) > -1) {
+              result.push(value)
+            }
+          })
+        }
+        this.list = result
+      }, 100)
+    }
+  },
+  mounted () {
+    this.scroll = new BScroll(this.$refs.search)
+  },
+  computed: {
+    hasNoData () {
+      return !this.list.length
+    }
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+@import '~styles/varibles.styl'
+.search
+  height 0.72rem
+  padding 0 0.1rem
+  background $bgColor
+  .search-input
+    box-sizing border-box
+    width 100%
+    height 0.62rem
+    padding 0.1rem
+    line-height 0.62rem
+    text-align center
+    border-radius 0.06rem
+    color #666
+.search-content
+  z-index 1
+  overflow hidden
+  position absolute
+  top 1.58rem
+  left 0
+  right 0
+  bottom 0
+  background #eee
+  .search-item
+    line-height 0.62rem
+    padding-left 0.2rem
+    color #666
+    background #fff
+</style>
+
+```
 
 
 
 ## 8-9 Vue项目城市选择页 - Vuex实现数据共享
 
+- Vuex 是一个专为 Vue.js 应用程序开发的**状态管理模式**。它采用集中式存储管理应用的所有组件的状态，并以相应的规则保证状态以一种可预测的方式发生变化。
 
+![vuex](readme.assets/vuex.png)
+
+- 安装Vuex
+
+  - ```sh
+    npm install vuex --save
+    ```
+
+  - ```vue
+    import Vue from 'vue'
+    import Vuex from 'vuex'
+    
+    Vue.use(Vuex)
+    ```
+
+- ESLint 忽略 JS 函数前没有空格
+
+  - .eslintrc.js
+
+  ```js
+  		// anonymous 针对匿名函数表达式 (比如 function () {})。
+      // named 针对命名的函数表达式 (比如 function foo () {})。
+      // asyncArrow 针对异步的箭头函数表达式 (比如 async () => {})。
+      "space-before-function-paren": ["error", {
+        "anonymous": "always",
+        "named": "ignore",
+        "asyncArrow": "always"
+      }]
+  ```
+
+- Vuex 的使用
+
+  ```js
+  import Vuex from 'vuex'
+  import Vue from 'vue'
+  
+  Vue.use(Vuex)
+  
+  export default new Vuex.Store({
+    state: {
+      city: '北京'
+    },
+    actions: {
+      changeCity(ctx, city) {
+        ctx.commit('changeCity', city)
+      }
+    },
+    mutations: {
+      changeCity(state, city) {
+        state.city = city
+      }
+    }
+  })
+  
+  ```
+
+- List.vue
+
+  ```vue
+  <script>
+  import BScroll from 'better-scroll'
+  export default {
+    name: 'CityList',
+    props: {
+      hotCities: { Array, Object },
+      cities: Object,
+      letter: String
+    },
+    methods: {
+      handleCityClick (city) {
+        // this.$store.dispatch('changeCity', city)
+        // 简单数据直接 commit
+        this.$store.commit('changeCity', city)
+        this.$router.push('/')
+      }
+    },
+    mounted () {
+      this.scroll = new BScroll(this.$refs.wrapper)
+    },
+    watch: {
+      letter () {
+        if (this.letter) {
+          const element = this.$refs[this.letter][0]
+          this.scroll.scrollToElement(element, 100)
+        }
+      }
+    }
+  }
+  </script>
+  ```
+
+  
 
 ## 8-10 Vue项目城市选择页 - Vuex的高级使用及localStorage
 
+- ```js
+  try {
+    // 直接可以使用
+    localStorage.city = city
+  } catch (e) {}
+  ```
 
+- vuex 的高级写法(辅助函数)
+
+  - mapState
+
+    - 映射 vuex 的属性, 辅助函数帮助我们生成计算属性
+    - [对象展开运算符](https://github.com/tc39/proposal-object-rest-spread) : 将多个对象合并为一个
+    - `...mapState(['city'])`
+
+  - mapMutations
+
+    - > **mutation 必须是同步函数**
+      >
+      > Action 类似于 mutation，不同在于：
+      >
+      > - Action 提交的是 mutation，而不是直接变更状态。
+      > - Action 可以包含任意异步操作。
+
+    - 映射 vuex 的函数
+
+    - `...mapMutations(['changeCity'])`
+
+  - mapGetters
+
+    - 辅助函数仅仅是将 store 中的 getter 映射到局部计算属性：
+
+    - > getters 可以认为是 store 的计算属性。就像计算属性一样，getter 的返回值会根据它的依赖被缓存起来，且只有当它的依赖值发生了改变才会被重新计算。
+
+    - `...mapGetters(['doubleCity'])`
+
+  - module
+
+    - Vuex 允许我们将 store 分割成**模块（module）**。每个模块拥有自己的 state、mutation、action、getter、甚至是嵌套子模块——从上至下进行同样方式的分割：
+
+      ```js
+      const moduleA = {
+        state: { ... },
+        mutations: { ... },
+        actions: { ... },
+        getters: { ... }
+      }
+      
+      const moduleB = {
+        state: { ... },
+        mutations: { ... },
+        actions: { ... }
+      }
+      
+      const store = new Vuex.Store({
+        modules: {
+          a: moduleA,
+          b: moduleB
+        }
+      })
+      
+      store.state.a // -> moduleA 的状态
+      store.state.b // -> moduleB 的状态
+      ```
+
+      
+
+  ```vue
+  <script>
+  import BScroll from 'better-scroll'
+  import { mapState, mapMutations } from 'vuex'
+  export default {
+    name: 'CityList',
+    props: {
+      hotCities: { Array, Object },
+      cities: Object,
+      letter: String
+    },
+    methods: {
+      handleCityClick (city) {
+        // this.$store.dispatch('changeCity', city)
+        // 简单数据直接 commit, 异步函数使用 dispatch
+        // this.$store.commit('changeCity', city)
+        this.changeCity(city)
+        this.$router.push('/')
+      },
+      // 使用映射写法, commit 映射到 changeCity
+      ...mapMutations(['changeCity'])
+    },
+    mounted () {
+      this.scroll = new BScroll(this.$refs.wrapper)
+    },
+    watch: {
+      letter () {
+        if (this.letter) {
+          const element = this.$refs[this.letter][0]
+          this.scroll.scrollToElement(element, 100)
+        }
+      }
+    },
+    computed: {
+      // 公用数据映射到计算属性中
+      ...mapState({
+        // 重新命名
+        currentCity: 'city'
+      })
+    }
+  }
+  </script>
+  ```
+
+  
 
 ## 8-11 Vue项目城市选择页 - 使用keep-alive优化网页性能
 
+- ### [activated](https://cn.vuejs.org/v2/api/#activated)
 
+  - **类型**：`Function`
+
+  - **详细**：用于重新发送 ajax 请求
+
+    被 keep-alive 缓存的组件激活时调用。
+
+    **该钩子在服务器端渲染期间不被调用。**
+
+- App.vue
+
+```vue
+<template>
+  <div id="app">
+    <keep-alive>
+      <router-view />
+    </keep-alive>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'App'
+}
+</script>
+
+<style>
+</style>
+
+```
+
+- Home.vue
+
+  ```js
+  methods: {
+      async getHomeInfo () {
+        var res = await axios.get('/api/index.json?city=' + this.city)
+        res = res.data
+        if (res.ret && res.data) {
+          const data = res.data
+          this.swiperList = data.swiperList
+          this.iconList = data.iconList
+          this.recommendList = data.recommendList
+          this.hotList = data.weekendList
+        }
+      }
+    },
+    mounted () {
+      this.lastCity = this.city
+      this.getHomeInfo()
+    },
+    activated () {
+      if (this.city !== this.lastCity) {
+        this.lastCity = this.city
+        this.getHomeInfo()
+      }
+    }
+  ```
+
+  
 
 # 第9章 项目实战 - 旅游网站详情页面开发
 ```
@@ -3136,29 +4066,376 @@ export default {
 ```
 ## 9-1 Vue项目详情页 - 动态路由和banner布局
 
+- 动态路由
 
+  ```js
+  export default new Router({
+    routes: [{
+      path: '/detail/:id',
+      name: 'Detail',
+      component: Detail
+    }]
+  })
+  ```
+
+  
 
 ## 9-2 Vue项目详情页 - 公用图片画廊组件拆分
 
+- swiper 的配置
 
+  - observeParents: 当Swiper的父元素变化时，例如window.resize，Swiper更新。
+
+  - paginationType: 分页器样式类型，可选
+
+    ‘bullets’  圆点（默认）
+    ‘fraction’  分式 
+    ‘progress’  进度条
+    ‘custom’ 自定义
+
+  - observer: 当改变swiper的样式（例如隐藏/显示）或者修改swiper的子元素时，自动初始化swiper。
+
+  ```js
+  swiperOptions: {
+          pagination: '.swiper-pagination',
+          paginationType: 'fraction',
+          observeParents: true,
+          observer: true
+        }
+  ```
+
+  
 
 ## 9-3 Vue项目详情页 - 实现Header渐隐渐显效果
+
+```vue
+<template>
+  <div>
+    <router-link tag="div"
+                 to="/"
+                 class="header-abs"
+                 v-show="this.showAbs">
+      <div class="iconfont back-icon">&#xe624;</div>
+    </router-link>
+    <div class="header-fixed"
+         v-show="!showAbs"
+         :style="opacityStyle">
+      <router-link to="/">
+        <div class="iconfont back-icon">&#xe624;</div>
+      </router-link>
+      景点详情
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'detailHeader',
+  data () {
+    return {
+      showAbs: true,
+      opacityStyle: {
+        opacity: 0
+      }
+    }
+  },
+  methods: {
+    handleScroll () {
+      const top = document.documentElement.scrollTop
+      if (top > 60) {
+        let opacity = top / 140
+        opacity = opacity > 1 ? 1 : opacity
+        this.opacityStyle = { opacity }
+        this.showAbs = false
+      } else {
+        this.showAbs = true
+      }
+    }
+  },
+  activated () {
+    window.addEventListener('scroll', this.handleScroll)
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+@import '~styles/mixins.styl'
+@import '~styles/varibles.styl'
+.header-abs
+  position absolute
+  left 0.2rem
+  top 0.2rem
+  width 0.8rem
+  height 0.8rem
+  text-align center
+  line-height 0.8rem
+  border-radius 0.4rem
+  background rgba(0, 0, 0, 0.5)
+  .back-icon
+    color white
+    font-size 0.4rem
+.header-fixed
+  position fixed
+  top 0
+  left 0
+  right 0
+  overflow hidden
+  height $headerHeight
+  line-height $headerHeight
+  text-align center
+  color white
+  font-size 0.32rem
+  background $bgColor
+  .back-icon
+    color white
+    font-size 0.4rem
+    padding 0 0.2rem
+    position absolute
+</style>
+
+```
 
 
 
 ## 9-4 Vue项目详情页 - 对全局事件的解绑
 
+```
+activated () {
+    window.addEventListener('scroll', this.handleScroll)
+  },
+  deactivated () {
+    window.removeEventListener('scroll', this.handleScroll)
+  }
+```
+
 
 
 ## 9-5 Vue项目详情页 - 使用递归组件实现详情页列表
 
+- List.vue
 
+  ```vue
+  <template>
+    <div>
+      <div
+        class="item"
+        v-for="(item, index) of list"
+        :key="index"
+      >
+        <div class="item-title border-bottom">
+          <span class="item-title-icon"></span>
+          {{item.title}}
+        </div>
+        <div v-if="item.children" class="item-chilren">
+          <detail-list :list="item.children"></detail-list>
+        </div>
+      </div>
+    </div>
+  </template>
+  
+  <script>
+  export default {
+    name: 'DetailList',
+    props: {
+      list: Array
+    }
+  }
+  </script>
+  
+  <style lang="stylus" scoped>
+    .item-title-icon
+      position: relative
+      left: .06rem
+      top: .06rem
+      display: inline-block
+      width: .36rem
+      height: .36rem
+      background: url(http://s.qunarzz.com/piao/image/touch/sight/detail.png) 0 -.45rem no-repeat
+      margin-right: .1rem
+      background-size: .4rem 3rem
+    .item-title
+      line-height: .8rem
+      font-size: .32rem
+      padding: 0 .2rem
+    .item-chilren
+      padding: 0 .2rem
+  </style>
+  
+  ```
+
+- Detail.vue
+
+  ```vue
+  <template>
+    <div>
+      <detail-banner></detail-banner>
+      <detail-header></detail-header>
+      <div class="content">
+        <detail-list :list="list"></detail-list>
+      </div>
+    </div>
+  </template>
+  
+  <script>
+  import DetailBanner from './components/Banner'
+  import DetailHeader from './components/Header'
+  import DetailList from './components/List'
+  
+  export default {
+    name: 'detail',
+    components: {
+      DetailBanner,
+      DetailHeader,
+      DetailList
+    },
+    data () {
+      return {
+        list: [{
+          title: '成人票',
+          children: [{
+            title: '成人三馆联票',
+            children: [{
+              title: '成人三馆联票 - 某连锁店'
+            }]
+          }, {
+            title: '成人五馆联票'
+          }]
+        }, {
+          title: '学生票'
+        }, {
+          title: '儿童票'
+        }, {
+          title: '特惠票'
+        }]
+      }
+    }
+  }
+  </script>
+  
+  <style lang="stylus" scoped>
+  .content
+    height 50rem
+  </style>
+  
+  ```
+
+  
 
 ## 9-6 Vue项目详情页 - 动态获取详情页面数据
+
+- 组件的 Name 属性使用场景
+
+  1. 在递归循环组件时
+  2. 在不缓存这个组件时
+  3. 在浏览器 Vue 调试工具时
+
+- 解决换存问题另一种方法: 不缓存某个组件
+
+  - ```vue
+    // 不缓存 Detail 组件
+    <keep-alive exclude="Detail">
+    	<router-view />
+    </keep-alive>
+    ```
+
+```vue
+<template>
+  <div>
+    <detail-banner :sightName="sightName"
+                   :bannerImg="bannerImg"
+                   :bannerImgs="gallaryImgs"></detail-banner>
+    <detail-header></detail-header>
+    <div class="content">
+      <detail-list :list="list"></detail-list>
+    </div>
+  </div>
+</template>
+
+<script>
+import DetailBanner from './components/Banner'
+import DetailHeader from './components/Header'
+import DetailList from './components/List'
+import axios from 'axios'
+
+export default {
+  name: 'detail',
+  components: {
+    DetailBanner,
+    DetailHeader,
+    DetailList
+  },
+  data () {
+    return {
+      list: [],
+      sightName: '',
+      bannerImg: '',
+      gallaryImgs: [],
+      id: null
+    }
+  },
+  methods: {
+    async getDetailInfo () {
+      // let res = await axios.get('/api/detail.json?id=' + this.$route.params.id)
+      let res = await axios.get('/api/detail.json', {
+        params: {
+          id: this.$route.params.id
+        }
+      })
+      res = res.data
+      if (res.ret && res.data) {
+        this.list = res.data.categoryList
+        this.sightName = res.data.sightName
+        this.bannerImg = res.data.bannerImg
+        this.gallaryImgs = res.data.gallaryImgs
+        this.id = this.$route.params.id
+      }
+    }
+  },
+  mounted () {
+    this.getDetailInfo()
+  },
+  activated () {
+    if (this.id !== this.$route.params.id && this.id !== null) {
+      this.getDetailInfo()
+    }
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+.content
+  height 50rem
+</style>
+
+```
 
 
 
 ## 9-7 Vue项目详情页 - 在项目中加入基础动画
+
+- Fade.vue
+
+```vue
+<template>
+  <transition>
+    <slot></slot>
+  </transition>
+</template>
+
+<script>
+export default {
+  name: 'Fade'
+}
+</script>
+
+<style lang="stylus" scoped>
+.v-enter, .v-leave-to
+  opacity 0
+.v-enter-active, .v-leave-active
+  transition opacity 0.5s
+</style>
+
+```
 
 
 
@@ -3170,19 +4447,147 @@ export default {
 	在这么课程学习完之后，继续深入学习Vue的方...
 ## 10-1 Vue项目的联调测试上线 - 项目前后端联调
 
+- config.index.js
 
+  - 把 target 指向真实接口地址
+
+  ```js
+  proxyTable: {
+        '/api': {
+          target: 'http://localhost:8080',
+          pathRewrite: {
+            '/api': '/static/mock'
+          }
+        }
+      },
+  ```
+
+  
 
 ## 10-2 Vue项目的联调测试上线 - 真机测试
 
+1. ipconfig 命令查看本机 IP 地址
 
+2. package.json 
+
+   1. 加入  --host 0.0.0.0 即可通过IP访问
+
+   2. ```json
+      "dev": "webpack-dev-server --host 0.0.0.0 --inline --progress --config build/webpack.dev.conf.js",
+      ```
+
+3. vue在移动端绑定click事件失效: 
+
+   1. 使用了better-scroll，默认它会阻止touch事件。所以在配置中需要加上click: true
+
+   2. ```js
+      this.scroll = new BScroll(this.$refs.search, {mouseWheel: true, click: true, tap: true})
+      ```
+
+4. 低版本手机浏览器不兼容/白屏 , 使用 babel-polyfill , 让手机支持 promise
+
+   1. ```sh
+      npm i babel-polyfill
+      ```
+
+   2. store/main.js
+
+      ```js
+      import 'babel-polyfill'
+      ```
+
+      
 
 ## 10-3 Vue项目的联调测试上线 - 打包上线
 
+1. 打包
 
+   1.  `npm run build`
+   2. 会生成在 dist 目录
+   3. 放入服务器即可访问
+
+2. 项目在什么目录运行
+
+   1. config/index.js
+
+   2. 修改这个路径即可  `assetsPublicPath: '/',` 
+
+      ```js
+      build: {
+          // Template for index.html
+          index: path.resolve(__dirname, '../dist/index.html'),
+      
+          // Paths
+          assetsRoot: path.resolve(__dirname, '../dist'),
+          assetsSubDirectory: 'static',
+          assetsPublicPath: '/', // 修改这个路径即可
+      ```
+
+      
 
 ## 10-4 Vue项目的联调测试上线 - 异步组件实现按需加载
 
+1. 生成文件的作用:
 
+   - app.css : 生成的 CSS 文件
+   - app.css.map
+     - 调试被压缩过的 CSS 代码, 不需要
+   - mainfest.js
+     - webpack 打包生成的配置文件
+   - app.js
+     - 业务逻辑代码
+     - 需要异步组件进行优化
+   - vendor.js
+     - 各个组件公用代码
+
+2. 异步加载优化
+
+   1. 业务逻辑代码量很大才需要 (app.js > 1MB)
+
+   2. 语法: `component: () => import('@/pages/home/Home')`
+
+   3. 语法: `组件名:  () => import('@/pages/home/Home')`
+
+   4. router/index.js
+
+      ```js
+      import Vue from 'vue'
+      import Router from 'vue-router'
+      
+      Vue.use(Router)
+      
+      export default new Router({
+        routes: [{
+          path: '/',
+          name: 'Home',
+          component: () => import('@/pages/home/Home')
+        }, {
+          path: '/city',
+          name: 'City',
+          component: () => import('@/pages/city/City')
+        }, {
+          path: '/detail/:id',
+          name: 'Detail',
+          component: () => import('@/pages/detail/Detail')
+        }],
+        scrollBehavior(to, form, savedPostion) {
+          return {
+            x: 0,
+            y: 0
+          }
+        }
+      })
+      
+      ```
+
+      
 
 ## 10-5 Vue项目的联调测试上线 - 课程总结与后续学习指南
 
+1. 如何提升?
+   1. vue 官方文档
+   2. 生态系统: 
+      1. vue-router 文档
+   3. vuex 官方文档
+   4. vue 服务器端渲染 (一年以上经验在学习)
+   5. vue 插件
