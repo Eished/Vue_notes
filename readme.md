@@ -2172,7 +2172,7 @@ var vm = new Vue({
 
 ## 6-2 Vue项目预热 - 项目代码介绍
 
-- read.me : vue 项目命令介绍
+- readme.md : vue 项目命令介绍
 - package.json : 项目依赖
 - package-lock.json : 依赖的包的具体参数
 - index.html : 首页
