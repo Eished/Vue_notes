@@ -900,6 +900,76 @@ data: {
 <div v-bind:class="[{ active: isActive }, errorClass]"></div>
 ```
 
+### [用在组件上](https://cn.vuejs.org/v2/guide/class-and-style.html#用在组件上)
+
+当在一个自定义组件上使用 `class` property 时，这些 class 将被添加到该组件的根元素上面。这个元素上已经存在的 class 不会被覆盖。
+
+例如，如果你声明了这个组件：
+
+```html
+Vue.component('my-component', {
+  template: '<p class="foo bar">Hi</p>'
+})
+```
+
+然后在使用它的时候添加一些 class：
+
+```html
+<my-component class="baz boo"></my-component>
+```
+
+HTML 将被渲染为：
+
+```html
+<p class="foo bar baz boo">Hi</p>
+```
+
+对于带数据绑定 class 也同样适用：
+
+```html
+<my-component v-bind:class="{ active: isActive }"></my-component>
+```
+
+### [绑定内联样式](https://cn.vuejs.org/v2/guide/class-and-style.html#绑定内联样式)
+
+`v-bind:style` 的对象语法十分直观——看着非常像 CSS，但其实是一个 JavaScript 对象。CSS property 名可以用驼峰式 (camelCase) 或短横线分隔 (kebab-case，记得用引号括起来) 来命名：
+
+```html
+<div v-bind:style="{ color: activeColor, fontSize: fontSize + 'px' }"></div>
+data: {
+  activeColor: 'red',
+  fontSize: 30
+}
+```
+
+直接绑定到一个样式对象通常更好，这会让模板更清晰：
+
+```html
+<div v-bind:style="styleObject"></div>
+data: {
+  styleObject: {
+    color: 'red',
+    fontSize: '13px'
+  }
+}
+
+<--数组语法--/>
+v-bind:style 的数组语法可以将多个样式对象应用到同一个元素上：
+
+<div v-bind:style="[baseStyles, overridingStyles]"></div>
+
+自动添加前缀
+当 v-bind:style 使用需要添加浏览器引擎前缀的 CSS property 时，如 transform，Vue.js 会自动侦测并添加相应的前缀。
+
+多重值
+从 2.3.0 起你可以为 style 绑定中的 property 提供一个包含多个值的数组，常用于提供多个带前缀的值，例如：
+<div :style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }"></div>
+
+这样写只会渲染数组中最后一个被浏览器支持的值。在本例中，如果浏览器支持不带浏览器前缀的 flexbox，那么就只会渲染 display: flex。
+```
+
+同样的，对象语法常常结合返回对象的计算属性使用。
+
 
 
 ## 3-7 Vue中的条件渲染
@@ -956,12 +1026,78 @@ data: {
 </html>
 ```
 
+### [在 `<template>` 元素上使用 v-if 条件渲染分组](https://cn.vuejs.org/v2/guide/conditional.html#%E5%9C%A8-lt-template-gt-%E5%85%83%E7%B4%A0%E4%B8%8A%E4%BD%BF%E7%94%A8-v-if-%E6%9D%A1%E4%BB%B6%E6%B8%B2%E6%9F%93%E5%88%86%E7%BB%84)
+
+因为 `v-if` 是一个指令，所以必须将它添加到一个元素上。但是如果想切换多个元素呢？此时可以把一个 `<template>` 元素当做不可见的包裹元素，并在上面使用 `v-if`。最终的渲染结果将不包含 `<template>` 元素。
+
+```html
+<template v-if="ok">
+  <h1>Title</h1>
+  <p>Paragraph 1</p>
+  <p>Paragraph 2</p>
+</template>
+```
+
+### [`v-else`](https://cn.vuejs.org/v2/guide/conditional.html#v-else)
+
+### [`v-else-if`](https://cn.vuejs.org/v2/guide/conditional.html#v-else-if)
+
+### [用 `key` 管理可复用的元素](https://cn.vuejs.org/v2/guide/conditional.html#用-key-管理可复用的元素)
+
+Vue 会尽可能高效地渲染元素，通常会复用已有元素而不是从头开始渲染。这么做除了使 Vue 变得非常快之外，还有其它一些好处。例如，如果你允许用户在不同的登录方式之间切换：
+
+```html
+<template v-if="loginType === 'username'">
+  <label>Username</label>
+  <input placeholder="Enter your username">
+</template>
+<template v-else>
+  <label>Email</label>
+  <input placeholder="Enter your email address">
+</template>
+```
+
+那么在上面的代码中切换 `loginType` 将不会清除用户已经输入的内容。因为两个模板使用了相同的元素，`<input>` 不会被替换掉——仅仅是替换了它的 `placeholder`。
+
+这样也不总是符合实际需求，所以 Vue 为你提供了一种方式来表达“这两个元素是完全独立的，不要复用它们”。只需添加一个具有唯一值的 `key` attribute 即可。
+
+> 注意，`<label>` 元素仍然会被高效地复用，因为它们没有添加 `key` attribute。
+
+
+
+### [`v-show`](https://cn.vuejs.org/v2/guide/conditional.html#v-show)
+
+不同的是带有 `v-show` 的元素始终会被渲染并保留在 DOM 中。`v-show` 只是简单地切换元素的 CSS property `display`。
+
+**注意**，`v-show` 不支持 `<template>` 元素，也不支持 `v-else`。
+
+
+
+### [`v-if` vs `v-show`](https://cn.vuejs.org/v2/guide/conditional.html#v-if-vs-v-show)
+
+`v-if` 是“真正”的条件渲染，因为它会确保在切换过程中条件块内的事件监听器和子组件适当地被**销毁和重建**。
+
+`v-if` 也是**惰性的**：如果在初始渲染时条件为假，则什么也不做——直到条件第一次变为真时，才会开始渲染条件块。
+
+相比之下，`v-show` 就简单得多——不管初始条件是什么，**元素总是会被渲染**，并且只是简单地基于 CSS 进行切换。
+
+一般来说，`v-if` 有更高的切换开销，而 `v-show` 有更高的初始渲染开销。因此，如果需要非常频繁地切换，则使用 `v-show` 较好；如果在运行时条件很少改变，则使用 `v-if` 较好。
+
 
 
 ## 3-8 Vue中的列表渲染
 
+```html
+<li v-for="(item, index) in items">
+
+你也可以提供第二个的参数为 property 名称 (也就是键名)：
+<div v-for="(value, name) in object">
+```
+
+
+
 - 建议尽可能在使用 `v-for` 时提供 `key` attribute , 请用字符串或数值类型的值。
-- 变异方法
+- 只能使用 vue提供的数组函数才能监听变化：变异方法
   - `push()`
   - `pop()`
   - `shift()`
@@ -1033,12 +1169,118 @@ data: {
 </html>
 ```
 
+### [维护状态](https://cn.vuejs.org/v2/guide/list.html#维护状态)
+
+当 Vue 正在更新使用 `v-for` 渲染的元素列表时，它默认使用“就地更新”的策略。如果数据项的顺序被改变，Vue 将不会移动 DOM 元素来匹配数据项的顺序，而是就地更新每个元素，并且确保它们在每个索引位置正确渲染。
+
+为了给 Vue 一个提示，以便它能跟踪每个节点的身份，从而重用和重新排序现有元素，你需要为每项提供一个唯一 `key` attribute：
+
+```html
+<div v-for="item in items" v-bind:key="item.id">
+  <!-- 内容 -->
+</div>
+```
+
+建议尽可能在使用 `v-for` 时提供 `key` attribute，除非遍历输出的 DOM 内容非常简单，或者是刻意依赖默认行为以获取性能上的提升。
+
+### [替换数组](https://cn.vuejs.org/v2/guide/list.html#替换数组)
+
+变更方法，顾名思义，会变更调用了这些方法的原始数组。相比之下，也有非变更方法，例如 `filter()`、`concat()` 和 `slice()`。它们不会变更原始数组，而**总是返回一个新数组**。当使用非变更方法时，可以用新数组替换旧数组：
+
+```html
+example1.items = example1.items.filter(function (item) {
+  return item.message.match(/Foo/)
+})
+```
+
+你可能认为这将导致 Vue 丢弃现有 DOM 并重新渲染整个列表。幸运的是，事实并非如此。Vue 为了使得 DOM 元素得到最大范围的重用而实现了一些智能的启发式方法，所以用一个含有相同元素的数组去替换原来的数组是非常高效的操作。
+
+Vue **不能检测**数组和对象的变化。
+
+### [显示过滤/排序后的结果](https://cn.vuejs.org/v2/guide/list.html#显示过滤-排序后的结果)
+
+有时，我们想要显示一个数组经过过滤或排序后的版本，而不实际变更或重置原始数据。在这种情况下，可以创建一个计算属性，来返回过滤或排序后的数组。
+
+在计算属性不适用的情况下 (例如，在嵌套 `v-for` 循环中) 你可以使用一个方法：
+
+```html
+<ul v-for="set in sets">
+  <li v-for="n in even(set)">{{ n }}</li>
+</ul>
+data: {
+  sets: [[ 1, 2, 3, 4, 5 ], [6, 7, 8, 9, 10]]
+},
+methods: {
+  even: function (numbers) {
+    return numbers.filter(function (number) {
+      return number % 2 === 0
+    })
+  }
+}
+```
+
+`v-for` 也可以接受整数。在这种情况下，它会把模板重复对应次数。
+
+### 在 `<template>` 上使用 v-for
+
+```html
+类似于 v-if，你也可以利用带有 v-for 的 <template> 来循环渲染一段包含多个元素的内容。比如：
+
+<ul>
+  <template v-for="item in items">
+    <li>{{ item.msg }}</li>
+    <li class="divider" role="presentation"></li>
+  </template>
+</ul>
+```
+
+
+
+### [`v-for` 与 `v-if` 一同使用](https://cn.vuejs.org/v2/guide/list.html#v-for-与-v-if-一同使用)
+
+注意我们**不**推荐在同一元素上使用 `v-if` 和 `v-for`。更多细节可查阅[风格指南](https://cn.vuejs.org/v2/style-guide/#避免-v-if-和-v-for-用在一起-必要)。
+
+当它们处于同一节点，`v-for` 的优先级比 `v-if` 更高，这意味着 `v-if` 将分别重复运行于每个 `v-for` 循环中。当你只想为*部分*项渲染节点时，这种优先级的机制会十分有用，如下：
+
+```html
+<li v-for="todo in todos" v-if="!todo.isComplete">
+  {{ todo }}
+</li>
+```
+
+上面的代码将只渲染未完成的 todo。
+
+而如果你的目的是有条件地跳过循环的执行，那么可以将 `v-if` 置于外层元素 (`或<template>` ) 上。
+
+
+
+### [在组件上使用 `v-for`](https://cn.vuejs.org/v2/guide/list.html#在组件上使用-v-for)
+
+注意这里的 **`is="todo-item"` attribute。**这种做法在使用 DOM 模板时是十分必要的，因为在 `<ul>` 元素内只有 `<li>` 元素会被看作有效内容。这样做实现的效果与 `<todo-item>` 相同，但是可以避开一些潜在的浏览器解析错误。查看 [DOM 模板解析说明](https://cn.vuejs.org/v2/guide/components.html#解析-DOM-模板时的注意事项) 来了解更多信息。
+
+```html
+<div id="todo-list-example">
+  <ul>
+    <li
+      is="todo-item"
+      v-for="(todo, index) in todos"
+      v-bind:key="todo.id"
+      v-bind:title="todo.title"
+      v-on:remove="todos.splice(index, 1)"
+    ></li>
+  </ul>
+</div>
+```
+
 
 
 ## 3-9 Vue中的set方法
 
-- `Vue.set(array,index,value)` 或 `$set(array,index,value)` 方法直接动态改变数组的每一项
--  `set(obj,key,value)` 或 `$set(obj,key,value)` 方法可以直接动态改变对象数据
+- `Vue.set(array,index,value)` 
+  - 或 `$set(array,index,value)` 方法直接动态改变数组的每一项
+- `set(obj,key,value)` 
+  - 或 `$set(obj,key,value)` 方法可以直接动态改变对象数据
+- 注意对象不能是 Vue 实例，或者 Vue 实例的根数据对象。
 - **Vue 不能检测对象属性的添加或删除**：
 
 ```js
@@ -1073,6 +1315,88 @@ var vm = new Vue({
       }
     })
 ```
+
+
+
+## 3-10 事件处理
+
+### [监听事件](https://cn.vuejs.org/v2/guide/events.html#监听事件)
+
+### [事件处理方法](https://cn.vuejs.org/v2/guide/events.html#事件处理方法)
+
+### [内联处理器中的方法](https://cn.vuejs.org/v2/guide/events.html#内联处理器中的方法)
+
+### [事件修饰符](https://cn.vuejs.org/v2/guide/events.html#事件修饰符)
+
+### 按键修饰符
+
+#### [按键码](https://cn.vuejs.org/v2/guide/events.html#按键码)
+
+### 系统修饰键
+
+#### [.exact 修饰符](https://cn.vuejs.org/v2/guide/events.html#exact-修饰符)
+
+#### [鼠标按钮修饰符](https://cn.vuejs.org/v2/guide/events.html#鼠标按钮修饰符)
+
+### [为什么在 HTML 中监听事件？](https://cn.vuejs.org/v2/guide/events.html#为什么在-HTML-中监听事件？)
+
+## 3-11 表单输入绑定
+
+### 基础用法
+
+#### [文本](https://cn.vuejs.org/v2/guide/forms.html#文本)
+
+#### [多行文本](https://cn.vuejs.org/v2/guide/forms.html#多行文本)
+
+#### [复选框](https://cn.vuejs.org/v2/guide/forms.html#复选框)
+
+#### [单选按钮](https://cn.vuejs.org/v2/guide/forms.html#单选按钮)
+
+#### [选择框](https://cn.vuejs.org/v2/guide/forms.html#选择框)
+
+### 值绑定
+
+#### [复选框](https://cn.vuejs.org/v2/guide/forms.html#复选框-1)
+
+#### [单选按钮](https://cn.vuejs.org/v2/guide/forms.html#单选按钮-1)
+
+#### [选择框的选项](https://cn.vuejs.org/v2/guide/forms.html#选择框的选项)
+
+### 修饰符
+
+#### [.lazy](https://cn.vuejs.org/v2/guide/forms.html#lazy)
+
+#### [.number](https://cn.vuejs.org/v2/guide/forms.html#number)
+
+#### [.trim](https://cn.vuejs.org/v2/guide/forms.html#trim)
+
+### [在组件上使用 v-model](https://cn.vuejs.org/v2/guide/forms.html#在组件上使用-v-model)
+
+## 3-11 组件基础
+
+### [基本示例](https://cn.vuejs.org/v2/guide/components.html#基本示例)
+
+### 组件的复用
+
+#### [data 必须是一个函数](https://cn.vuejs.org/v2/guide/components.html#data-必须是一个函数)
+
+### [组件的组织](https://cn.vuejs.org/v2/guide/components.html#组件的组织)
+
+### [通过 Prop 向子组件传递数据](https://cn.vuejs.org/v2/guide/components.html#通过-Prop-向子组件传递数据)
+
+### [单个根元素](https://cn.vuejs.org/v2/guide/components.html#单个根元素)
+
+### 监听子组件事件
+
+#### [使用事件抛出一个值](https://cn.vuejs.org/v2/guide/components.html#使用事件抛出一个值)
+
+#### [在组件上使用 v-model](https://cn.vuejs.org/v2/guide/components.html#在组件上使用-v-model)
+
+### [通过插槽分发内容](https://cn.vuejs.org/v2/guide/components.html#通过插槽分发内容)
+
+### [动态组件](https://cn.vuejs.org/v2/guide/components.html#动态组件)
+
+### [解析 DOM 模板时的注意事项](https://cn.vuejs.org/v2/guide/components.html#解析-DOM-模板时的注意事项)
 
 
 
